@@ -1,0 +1,819 @@
+keywords: ["blip", "lua", "luau", "object", "entity", "transform", "component", "properties", "methods", "scene graph"]
+type: "Object"
+description: |
+  An `Object` is the most basic thing that can be added to the game 3D scene.
+
+  It has a position, a rotation and a scale and can contain child [Object]s, including [Object] extensions like [Shape].
+
+  An object by itself does not render anything on screen, but it can contain [Shape]s and thus become a parent coordinate system for them.
+
+  An `Object` can also take part in the physics simulation when setting [Object.Physics](#property-physics).
+
+constructors:
+  - description: "Creates an Object."
+    samples:
+      - code: |
+          local o = Object()
+          World:AddChild(o) -- adds o to the [World] (top level object in the game scene)
+
+properties:
+
+    - name: "Acceleration"
+      type: "Number3"
+      description: |
+          [This]'s constant acceleration in world coordinates per second squared.
+
+          ⚠️ `Acceleration` only affects [This] when [This].[Physics](#property-physics) is `PhysicsMode.Dynamic`.
+      samples:
+        - code: |
+            -- Acceleration can be used to compensate gravity: 
+            myObject.Acceleration = -Config.ConstantAcceleration
+            -- myObject's acceleration is now the invert of 
+            -- Config.ConstantAcceleration, cancelling it.
+
+    - name: "CollisionGroups"
+      type: "CollisionGroups"
+      description: |
+          Collision groups the [This] belongs to. 
+
+          ⚠️ It doesn't mean the [This] will collide with other [Object]s in these groups.
+
+          If the [This] belongs to group number `3` for example, it means all [Object]s that have group number `3` in their [Object].[CollidesWithGroups](#property-collideswithgroups) property will collide with it.
+
+          By default:
+          - [Object]s collide with the [Map] and other [Object]s
+          - [Player]s collide with the [Map] only
+
+          That can all be configured differently depending on your needs.
+          
+          Collision groups are best used as buckets created for gameplay needs, for example,
+          - a group for "hittable" objects that can be damaged by the player's weapon
+          - a group for recyclable Objects that are disabled and thrown back into their pool when they reach a certain trigger collider
+          - a group for static scenery objects that moving objects will bump into
+          - a group for objects that can get hit by raycasts executed for some specific game mechanic
+          It may well be the case that one object belongs to several or all of these groups, depending on the gameplay associated with it.
+
+          In general, it is bad practice to assign or add all collision groups from one object to another (unless making exact copies), as it isn't future-proof if you later add more groups. Instead, you should assign individual groups depending on what this new object should contribute to in your world.
+
+      samples:
+        - code: |
+            -- these are the group numbers assigned by default to Map, Player, and all Objects
+            local GROUP_MAP = 1
+            local GROUP_PLAYER = 2
+            local GROUP_OBJECT = 3
+
+            -- by default, this object will collide with the map and other objects
+            local o = Object()
+            o.Physics = PhysicsMode.Dynamic
+
+            -- when in doubt, print the groups of your objects
+            print(Map.CollisionGroups, Map.CollidesWithGroups)
+            print(o.CollisionGroups, o.CollidesWithGroups)
+
+            -- let's say our world needs an extra group for a gameplay mechanic, for example, a group for objects that can be hit by player's weapon (which could perform a raycast in that group)
+            local GROUP_HITTABLE = 4
+
+            -- here, the object would collide with anything that cares about GROUP_OBJECT or GROUP_HITTABLE, in addition to itself wanting to collide with GROUP_MAP and GROUP_PLAYER
+            o.CollisionGroups = { GROUP_OBJECT, GROUP_HITTABLE }
+            o.CollidesWithGroups = { GROUP_MAP, GROUP_PLAYER }
+
+            -- when adding new obstacle/scenery objects to our scene, you can simply re-use the GROUP_MAP as a way to say "this is part of the environment that is collidable"
+            -- here, maybe this object only acts as an obstacle and doesn't contribute to anything else
+            someBigRock.CollisionGroups = GROUP_MAP
+            someBigRock.CollidesWithGroups = nil
+
+            -- doing this effectively prevents all physics interaction on an object
+            o.CollisionGroups = nil
+            o.CollidesWithGroups = nil
+
+            -- note that there is redundancy with CollisionGroups and CollidesWithGroups, so you can organize your groups however seems more convenient for you
+            -- for example the following setups will all result in object1 and object2 colliding with each other
+            object1.CollisionGroups = GROUP_OBJECT
+            object1.CollidesWithGroups = nil
+            object2.CollisionGroups = GROUP_OBJECT
+            object2.CollidesWithGroups = GROUP_OBJECT
+
+            object1.CollisionGroups = GROUP_OBJECT
+            object1.CollidesWithGroups = GROUP_OBJECT
+            object2.CollisionGroups = GROUP_OBJECT
+            object2.CollidesWithGroups = nil
+
+            object1.CollisionGroups = GROUP_OBJECT
+            object1.CollidesWithGroups = GROUP_OBJECT
+            object2.CollisionGroups = GROUP_OBJECT
+            object2.CollidesWithGroups = GROUP_OBJECT
+
+            object1.CollisionGroups = GROUP_OBJECT
+            object1.CollidesWithGroups = nil
+            object2.CollisionGroups = nil
+            object2.CollidesWithGroups = GROUP_OBJECT
+
+    - name: "CollidesWithGroups"
+      type: "CollisionGroups"
+      description: |
+          Collision groups the [This] collides with. See [This].[CollisionGroups](#property-collisiongroups).
+
+          By default:
+          - [Object]s collide with the [Map] and other [Object]s
+          - [Player]s collide with the [Map] and the [Object]s
+
+          That can all be configured differently depending on your needs.
+      samples:
+        - code: |
+            local object = Object()
+            
+            -- It's not mandatory to change Physics value.
+            -- (default value is PhysicsMode.Static)
+            -- An object with Physics set to PhysicsMode.Static contributes 
+            -- to the physics simulation as a static item (can't be moved)
+            object.Physics = PhysicsMode.Dynamic
+
+            -- making an object collide with the Map and Players
+            object.CollidesWithGroups = Map.CollisionGroups + Player.CollisionGroups
+
+            -- for an Object to collide with other objects only
+            -- (won't collide with the map)
+            object.CollidesWithGroups = object.CollisionGroups
+
+            -- for Player (local player) to collide with other players and the Map
+            Player.CollidesWithGroups = Map.CollisionGroups + Player.CollisionGroups
+
+            -- making sure 2 objects collide with each others
+            -- NOTE: by default:
+            -- Map.CollisionGroups == {1},
+            -- Player.CollisionGroups == {2},
+            -- Object.CollisionGroups == {3}
+            local object1 = Object()
+            local object2 = Object()
+            object1.CollisionGroups = {5}
+            object2.CollisionGroups = {5}
+            object1.CollidesWithGroups = {1, 5} -- collides with Map + objects in group 5
+            object2.CollidesWithGroups = {1, 5} -- collides with Map + objects in group 5
+
+            -- would also work this way if you don't 
+            -- remember Map's group (which can be changed too by the way)
+            object1.CollidesWithGroups = Map.CollisionGroups + {5}
+
+
+    - name: "Physics"
+      type: "PhysicsMode"
+      description: |
+          Sets the simulation mode for this object, it can be one of the following:
+          - `PhysicsMode.Disabled`: excluded from all physics features.
+          - `PhysicsMode.Trigger`: [This]'s collision box is available for casts and collision callbacks, and is passed through by other dynamic objects.
+          - `PhysicsMode.TriggerPerBlock`: if [This] is a [Shape], its model blocks are available for casts and collision callbacks, and is passed through by other dynamic objects.
+          - `PhysicsMode.Static`: [This]'s collision box is available for casts, collision callbacks, and acts as an obstacle for other dynamic objects.
+          - `PhysicsMode.StaticPerBlock`: if [This] is a [Shape], its model blocks are available for casts, collision callbacks, and act as obstacles for other dynamic objects.
+          - `PhysicsMode.Dynamic`: [This]'s world-aligned collision box is available for casts, collision callbacks, may act as obstacles for other dynamic objects, and is itself fully simulated. When setting this mode, any children that may collide with the object will be automatically set to `PhysicsMode.Disabled`.
+
+          By default, players are `PhysicsMode.Dynamic`, shapes are `PhysicsMode.Static`, all other objects are `PhysicsMode.Disabled`.
+        
+          You may use `Dev.DisplayColliders` to visualize each object's collision settings.
+
+          ⚠️ When set to `PhysicsMode.Disabled`, [This].[Velocity](#property-velocity) & [This].[Motion](#property-motion) are set to `{0,0,0}`.
+
+    - name: "OnCollisionBegin"
+      type: "function"
+      description: |
+          [nil] by default. Can be set to a function that will be triggered when this object begins a collision with another object.
+          
+          The function is called with 3 parameters:
+          - the object the callback was set for,
+          - the other actor in the collision,
+          - the world normal of the hit surface.
+          
+          Note: it's not necessary to use all 3 parameters.
+      samples:
+        - code: |
+            object.OnCollisionBegin = function(self, other, normal)
+              print("collision began between", self, " and ", other, " with world normal ", normal)
+            end
+
+    - name: "OnCollision"
+      type: "function"
+      description: |
+          [nil] by default. Can be set to a function that will be triggered every frame where this object remains in contact with another object.
+
+          Like `OnCollisionBegin`, this function has 3 arguments: `self`, `other`, `normal`.
+
+    - name: "OnCollisionEnd"
+      type: "function"
+      description: |
+          [nil] by default. Can be set to a function that will be triggered when the [This] ends colliding with another [Object].
+
+          The function is called with 2 parameters: the object the callback was set for and the other actor in the collision. 
+      samples:
+        - code: |
+            object.OnCollisionEnd = function(self, other)
+              print("collision ended between", self, "and", other)
+            end
+
+    - name: "Position"
+      type: "Number3"
+      description: |
+          Position of the [This] in the world.
+      samples:
+        - code: |
+            local o = Object()
+            -- places the object where the local player is
+            o.Position = Player.Position
+
+    - name: "IsOnGround"
+      type: "boolean"
+      read-only: true
+      description: |
+          `true` when the [This] is not falling.
+
+          ⚠️ `IsOnGround` only makes sense when [This].Physics is `PhysicsMode.Dynamic`.
+
+    - name: "IsHidden"
+      type: "boolean"
+      description: |
+          Can be set to `true` for the [This] to be hidden recursively, meaning [This] and all of its children are hidden.
+
+          Nothing else changes, the [This] remains in the scene and it keeps being affected by the simulation (collisions, etc.).
+
+    - name: "IsHiddenSelf"
+      type: "boolean"
+      description: |
+          Can be set to `true` for the [This] to be hidden individually.
+
+          Nothing else changes, the [This] remains in the scene and it keeps being affected by the simulation (collisions, etc.).
+
+    - name: "ShadowCookie"
+      type: number
+      description: |
+          Size in world units of the shadow cookie projected under the [This], default is `0.0` (disabled).
+          The shadow cookie, also called blob shadow, is a square texture acting as a cheap alternative to projected shadows.
+
+          If this value is strictly positive, shadow cookies will be displayed when:
+          - the scene has no light source,
+          - the scene has light sources, but they are disabled because the client is using lower quality settings
+
+          Shadow cookies can be used as a fallback to your scene shadows for players with low quality settings, of course, you can also use them instead of shadows as a design choice.
+
+    - name: "LocalPosition"
+      type: "Number3"
+      description: |
+          Local position of the [This] relative to its parent.
+
+          All of [This]'s ancestors local transformations are combined to obtain the [This] "world position" ([Object.Position](#property-position)), the [Object]'s final position.
+
+    - name: "Rotation"
+      type: "Rotation"
+      description: |
+          Rotation of the [This] in the world (as seen on screen).
+
+          While it usually works for simple operations (like `Rotation.X = Rotation.X + someAngle`), we advise you to use [Number3].[Rotate](/reference/number3#functions-rotate) to rotate an object around X, Y & Z axis.
+
+          You can also set unit vectors like [This].[Up](#property-up), [This].[Right](#property-right) or [This].[Forward](#property-forward) to orient your object.
+      samples:
+        - code: |
+            local o = Object()
+            o.Rotation = {0, math.pi, 0}
+            -- o revolved half a turn on Y axis
+
+            -- another way to rotate the object:
+            o.Forward:Rotate({0, 0, math.pi / 2})
+            o.Forward = Camera.Forward
+
+    - name: "Tick"
+      type: "function"
+      description: |
+          Tick is a [function] executed each frame when set ([nil] by default). Provides the [This] and elapsed time in seconds as parameters.
+
+          For general purposes, you may consider using [Client.Tick](reference/client#functions-tick) instead. It is functionally the same, but is executed once for your world per frame, rather than once per frame per object.
+
+          The exact number of frames per second may fluctuate and depend on the device. It is typically around 60 frames per second.
+      samples:
+        - code: |
+            myObject.Tick = function(object, dt)
+              print("elapsed:", dt, "seconds since last frame")
+            end
+
+    - name: "LocalRotation"
+      type: "Rotation"
+      description: |
+          Local rotation of the [This] relative to its parent.
+
+          All of [This]'s ancestors local transformations are combined to obtain the "world rotation" ([Object.Rotation](#property-rotation)), the [Object]'s final rotation.
+    
+    - name: "Velocity"
+      type: "Number3"
+      description: |
+          Velocity of the [This] in world coordinates per second.
+
+          ⚠️ `Velocity` only affects [This] when [This].[Physics](#property-physics) is `PhysicsMode.Dynamic`.
+      samples:
+        - code: |
+            -- makes myObject jump:
+            myObject.Velocity.Y = 100
+
+    - name: "Motion"
+      type: "Number3"
+      description: |
+          `Motion` is an instantaneous displacement that contributes to moving [This] every frame, without changing [This].[Velocity](#property-velocity) directly, and without being affected by collision responses and other forces. It is expressed in world coordinates per second.
+
+          It's very useful to quickly implement character movement. This is what's being used by default when you're moving around with your avatar (see [Client.DirectionalPad](/reference/client#property-directionalpad)). It's the reason why you can stop moving horizontally while in the air.
+
+          ⚠️ `Motion` only affects [This] when [This].[Physics](#property-physics) is `PhysicsMode.Dynamic`.
+      samples:
+        - code: |
+            local speed = 10
+            myObject.Motion = Camera.Forward * speed
+            -- myObject will move in the same direction the camera is currently facing.
+            -- If the Camera rotates after this, it won't change where myObject is heading.
+
+    - name: "LocalScale"
+      type: "Number3"
+      description: |
+          Scale of the [Object], in its parent local space. Can be set to a `number` for a uniform scale.
+
+          Nested [Object] local scales are combined to obtain the "world scale" ([Object.LossyScale](#property-lossyscale)), the [Object]'s final scale.
+      samples:
+        - code: |
+            -- make the object twice as big
+            myObject.LocalScale = 2
+
+            -- equivalent to
+            myObject.LocalScale = Number3(2, 2, 2)
+            myObject.LocalScale = { 2, 2, 2 }
+        - code: |
+            -- demonstrate how scales are combined in the hierarchy
+            local parentObject = Object()
+            parentObject:SetParent(World)
+            parentObject.LocalScale = 2
+
+            local childObject = Object()
+            childObject:SetParent(parentObject)
+            childObject.LocalScale = 0.5
+
+            -- here, the scales would cancel each other: 2 x 0.5 = 1
+            print(childObject.LossyScale) -- returns (1,1,1)
+
+    - name: "LossyScale"
+      read-only: true
+      type: "Number3"
+      description: |
+          Convenience property that attempts to match the actual world scale as much as it can. Note that [Object]s that have multiple levels of nested rotations and scales will return a skewed lossy scale.
+
+    - name: Mass
+      type: "number"
+      description: |
+          The mass of the [Object] determines how much a given force can move it and whether or not another object can be pushed by it. It cannot be zero, a neutral mass is a mass of 1.
+
+    - name: Friction
+      type: "number or table of numbers"
+      description: |
+          The combined friction of 2 [Object]s in contact represents how much the moving [Object] will be able to slide along the colliding [Object].
+          
+          It is a rate between 0 (full slide, no friction) and 1 (maximum friction). Values equal to or lower than 0 will keep or increase momentum, like sliding on ice. Values higher than 1 means a faster stop, up to a value of 2 to ensure a full stop on contact regardless of the colliding [Object]'s own friction.
+
+          [Object.Friction] can be set per-face by providing a table with any combination of the following keys : `right`, `left`, `front`, `back`, `top`, `bottom`, `other`.
+          For example, to set the friction on the bottom face of an object's collider to `0` and `0.2` on every other faces, you could set, `object.Friction = { bottom=0, other=0.2 }`.
+
+    - name: Bounciness
+      type: "number"
+      description: |
+          The combined bounciness of 2 [Object]s in contact represents how much of the moving [Object]'s velocity is produced after being in contact with the colliding [Object], it is a rate between 0 (no bounce) and 1 (100% of the velocity bounced). Values higher than 1 are allowed and will create an increasing momentum at each bounce (try at your own risk).
+
+          [Object.Bounciness] can be set per-face by providing a table with any combination of the following keys : `right`, `left`, `front`, `back`, `top`, `bottom`, `other`.
+          For example, to set the bounciness on the side faces of an object's collider to `0.2` and `0` on top and bottom faces, you could set, `object.Bounciness = { top=0, bottom=0, other=0.2 }`.
+    
+    - name: CollisionBox
+      type: "Box"
+      description: |
+          All [Object]s have a collision box that represents the space occupied in the scene with regards to collisions. For [Shape]s and [Player]s, the collision box is updated with their bounding box. For [Object]s, it is a 1-cube by default after physics was enabled for the first time.
+
+    - name: "ChildrenCount"
+      read-only: true
+      type: "integer"
+      description: |
+          Returns number of child [Object]s.
+
+    - name: "Up"
+      type: "Number3"
+      description: |
+          `Up` is a unit vector (vector with a length of 1). It determines which direction is "up" for the [This].
+
+          Setting it is a way to rotate the [This].
+
+    - name: "Right"
+      type: "Number3"
+      description: |
+          `Right` is a unit vector (vector with a length of 1). It determines which direction is "right" for the [This].
+
+          Setting it is a way to rotate the [This].
+
+    - name: "Forward"
+      type: "Number3"
+      description: |
+          `Forward` is a unit vector (vector with a length of 1). It determines which direction is "forward" for the [This].
+
+          Setting it is a way to rotate the [This].
+
+    - name: "Left"
+      type: "Number3"
+      description: |
+          `Left` is a unit vector (vector with a length of 1). It determines which direction is "left" for the [This].
+
+          Setting it is a way to rotate the [This].
+
+    - name: "Down"
+      type: "Number3"
+      description: |
+          `Down` is a unit vector (vector with a length of 1). It determines which direction is "down" for the [This].
+
+          Setting it is a way to rotate the [This].
+
+    - name: "Backward"
+      type: "Number3"
+      description: |
+          `Backward` is a unit vector (vector with a length of 1). It determines which direction is "backward" for the [This].
+
+          Setting it is a way to rotate the [This].
+
+functions:
+    - name: "Load"
+      arguments:
+        - name: "itemName"
+          type: "string"
+        - name: "callback"
+          type: "function"
+        - name: "config"
+          type: "table"
+          optional: true
+      description: |
+          Loads the given item asynchronously and calls the callback once done. The parameter `itemName` follows the usual naming convention `user.item`.
+
+          This is a function of the global [This], to be called as `Object:Load(itemName, callback, config)`.
+
+          The `config` table options are as follows,
+          - `mutable` allows to create the item shapes as [MutableShape](reference/mutableshape) instead of [Shape](reference/shape). Default `false`.
+          - `bakedLight` allows to generate baked lighting for the item shapes. Default `false`.
+
+    - name: "AddChild"
+      arguments:
+        - name: "child"
+          type: "Object"
+        - name: "keepWorld"
+          type: "boolean"
+          optional: true
+      description: |
+          Adds given [Object] as a child. [Object] extensions like [Shape] or [MutableShape] are naturally accepted too.
+        
+          The `keepWorld` optional parameter, `false` by default, dictates whether to maintain the child's world or local position and rotation. Keeping world will ensure the object doesn't move in the scene, adjusting its local position/rotation accordingly; keeping local will have the object move in the scene in order to maintain an equivalent local position/rotation relative to its new parent.
+
+          It's a good practice to set child/parent relationships before setting positions, if you do not want to use the `keepWorld` parameter.
+
+          Note that there is a cyclic hierarchy protection that will prevent you from creating parenting loops.
+      samples:
+        - code: |
+            local o = Object()
+            local myShape = Shape(Items.someuser.someitem)
+            o:AddChild(myShape)
+    - name: "RemoveChild"
+      description: |
+          Unsets parent/child relationship with child parameter. The child ends up being deleted if it has no other references.
+        
+          The `keepWorld` optional parameter, `false` by default, dictates whether to maintain the child's world or local position and rotation. Keeping world will ensure the object doesn't move in the scene, adjusting its local position/rotation accordingly; keeping local will have the object move in the scene in order to maintain an equivalent local position/rotation relative to its new parent.
+      arguments: 
+        - name: "child"
+          type: "Object"
+        - name: "keepWorld"
+          type: "boolean"
+          optional: true
+      samples:
+        - code: |
+            o:RemoveChild(someChildObject)
+    - name: "RemoveChildren"
+      description: |
+          Unsets parent/child relationship with all children. Individual children end up being deleted if they have no other references.
+        
+          The `keepWorld` optional parameter, `false` by default, dictates whether to maintain the child's world or local position and rotation. Keeping world will ensure the object doesn't move in the scene, adjusting its local position/rotation accordingly; keeping local will have the object move in the scene in order to maintain an equivalent local position/rotation relative to its new parent.
+      arguments:
+        - name: "keepWorld"
+          type: "boolean"
+          optional: true
+      samples:
+        - code: |
+            o:RemoveChildren()
+
+    - name: "Recurse"
+      description: |
+          Iterates over all descendants of [This] and calls the callback function for each.
+
+          The callback function is called with the descendant as the only argument.
+
+          The `config` table accepts two boolean options:
+          - `deepFirst`: if `true`, traverses depth-first instead of root-first. Default `false`.
+          - `includeRoot`: if `true`, includes [This] in the recursion. Default `true`.
+      arguments:
+        - name: "callback"
+          type: "function"
+        - name: "config"
+          type: "table"
+          optional: true
+      samples:
+        - code: |
+            o:Recurse(function(descendant)
+              print(descendant)
+            end, { includeRoot = true })
+
+    - name: "FindFirst"
+      description: |
+          Returns the first descendant [Object] for which the search function returns `true`.
+          If no descendant is found, returns `nil`.
+
+          The search function is called with the descendant as the only argument.
+
+          The `config` table accepts two boolean options:
+          - `deepFirst`: if `true`, traverses depth-first instead of root-first. Default `false`.
+          - `includeRoot`: if `true`, includes [This] in the recursion. Default `false`.
+      arguments:
+        - name: "searchFunction"
+          type: "function"
+        - name: "config"
+          type: "table"
+          optional: true
+      return:
+        - type: "Object"
+      samples:
+        - code: |
+            local leaf = oakTree:FindFirst(function(o) return o.Name == "leaf" end)
+            if leaf then
+              print("found a leaf:", leaf)
+            end
+
+    - name: "Find"
+      description: |
+          Returns all descendants [Object]s for which the search function returns `true`.
+          If no descendant is found, returns an empty table.
+
+          The search function is called with the descendant as the only argument.
+
+          The `config` table accepts two boolean options:
+          - `deepFirst`: if `true`, traverses depth-first instead of root-first. Default `false`.
+          - `includeRoot`: if `true`, includes [This] in the recursion. Default `false`.
+      arguments:
+        - name: "searchFunction"
+          type: "function"
+        - name: "config"
+          type: "table"
+          optional: true
+      return:
+        - type: "table"
+      samples:
+        - code: |
+            local leaves = oakTree:Find(function(o) return o.Name == "leaf" end)
+            for i, leaf in leaves do
+              print("leaf #" .. i .. ":", leaf)
+            end
+
+    - name: "Destroy"
+      description: |
+          The most efficient way to dispose of an [Object] for good.
+
+          Calling `Destroy` removes the [Object] and all its descendants from the [World].
+          Metadata associated with all of these [Object]s also gets removed.
+
+          Once destroyed, the [Object]s can't be used anymore.
+      samples:
+        - code: |
+            o:Destroy()
+
+    - name: "GetChild"
+      description: "Get child [Object] at index."
+      arguments: 
+        - name: "index"
+          type: "integer"
+      return:
+        - type: "Object"
+      samples:
+        - code: |
+            if o.ChildrenCount > 0 then
+              print(o:GetChild(1)) -- prints first child
+            end
+
+    - name: "GetParent"
+      description: "Get [This]'s parent."
+      return:
+        - type: "Object"
+      samples:
+        - code: |
+            print(myObject:GetParent())
+
+    - name: "SetParent"
+      description: |
+          Sets parent/child relationship with parent parameter. [nil] can be used to remove the [Object] from its parent.
+        
+          The `keepWorld` optional parameter, `false` by default, dictates whether to maintain the child's world or local position and rotation. Keeping world will ensure the object doesn't move in the scene, adjusting its local position/rotation accordingly; keeping local will have the object move in the scene in order to maintain an equivalent local position/rotation relative to its new parent.
+
+          It's a good practice to set child/parent relationships before setting positions, if you do not want to use the `keepWorld` parameter.
+
+          Note that there is a cyclic hierarchy protection that will prevent you from creating parenting loops.
+
+      arguments:
+        - name: "parent"
+          type: "Object"
+        - name: "keepWorld"
+          type: "boolean"
+          optional: true
+      samples:
+        - code: |
+            local o = Object()
+            o:SetParent(Map) -- o is now a child of the map
+            -- (Map is an extension of Object)
+
+    - name: "RemoveFromParent"
+      description: |
+          Removes the [This] from its parent. Doesn't do anything if the [This] has no parent.
+        
+          The `keepWorld` optional parameter, `false` by default, dictates whether to maintain the child's world or local position and rotation. Keeping world will ensure the object doesn't move in the scene, adjusting its local position/rotation accordingly; keeping local will have the object move in the scene in order to maintain an equivalent local position/rotation relative to its new parent.
+        
+      arguments:
+        - name: "keepWorld"
+          type: "boolean"
+          optional: true
+      samples:
+        - code: |
+            o:RemoveFromParent()
+
+    - name: "PositionLocalToWorld"
+      description: "Converts a local position to world coordinate system."
+      arguments: 
+        - name: "p"
+          type: "Number3"
+      return:
+        - type: "Number3"
+      samples:
+        - code: |
+            local p = Number3(1, 2, 3)
+            local pInWorldCoords = myObject:PositionLocalToWorld(p)
+
+    - name: "PositionWorldToLocal"
+      description: "Converts a world position to local coordinate system."
+      arguments: 
+        - name: "p"
+          type: "Number3"
+      return:
+        - type: "Number3"
+      samples:
+        - code: |
+            local p = Number3(1, 2, 3)
+            local pInLocalCoords = myObject:PositionWorldToLocal(p)
+
+    - name: "RotateLocal"
+      description: "Rotates the [This] in its own coordinates system."
+      argument-sets:
+        - 
+          - name: "eulerAnglesXYZ"
+            type: "Number3"
+        - 
+          - name: "eulerAngleX"
+            type: "number"
+          - name: "eulerAngleY"
+            type: "number"
+          - name: "eulerAngleZ"
+            type: "number"
+        - 
+          - name: "rotation"
+            type: "Rotation"
+        - 
+          - name: "axis"
+            type: "Number3"
+          - name: "angle"
+            type: "number"
+      samples:
+        - code: |
+            o = Object()
+            -- rotate with provided Euler angle
+            o:RotateLocal({0, 0, math.pi / 2.0})
+
+            -- rotate along specified axis
+            o:RotateLocal(o.Forward, math.pi / 2.0)
+
+    - name: "RotateWorld"
+      description: "Rotate the [This] in the [World] coordinates system."
+      argument-sets:
+        - 
+          - name: "eulerAnglesXYZ"
+            type: "Number3"
+        - 
+          - name: "eulerAngleX"
+            type: "number"
+          - name: "eulerAngleY"
+            type: "number"
+          - name: "eulerAngleZ"
+            type: "number"
+        - 
+          - name: "rotation"
+            type: "Rotation"
+        - 
+          - name: "axis"
+            type: "Number3"
+          - name: "angle"
+            type: "number"
+      samples:
+        - code: |
+            o = Object()
+            -- rotate with provided Euler angles
+            o:RotateWorld({0, 0, math.pi / 2.0})
+
+            -- rotate along specified axis
+            o:RotateWorld(o.Forward, math.pi / 2.0)
+            -- same as o:RotateLocal({0, 0, 1}, math.pi / 2.0)
+
+    - name: "RotationLocalToWorld"
+      description: "Converts a rotation from local to world relative to this object."
+      argument-sets:
+        - 
+          - name: "eulerAnglesXYZ"
+            type: "Number3"
+        - 
+          - name: "eulerAngleX"
+            type: "number"
+          - name: "eulerAngleY"
+            type: "number"
+          - name: "eulerAngleZ"
+            type: "number"
+        - 
+          - name: "rotation"
+            type: "Rotation"
+      return:
+        - type: "Rotation"
+
+    - name: "RotationWorldToLocal"
+      description: "Converts a rotation from world to local relative to this object."
+      argument-sets:
+        - 
+          - name: "eulerAnglesXYZ"
+            type: "Number3"
+        - 
+          - name: "eulerAngleX"
+            type: "number"
+          - name: "eulerAngleY"
+            type: "number"
+          - name: "eulerAngleZ"
+            type: "number"
+        - 
+          - name: "rotation"
+            type: "Rotation"
+      return:
+        - type: "Rotation"
+
+    - name: "CollidesWith"
+      description: "Returns `true` if the two [Object]s may collide with each other."
+      arguments: 
+        - name: "self"
+          type: "Object"
+        - name: "other"
+          type: "Object"
+      return:
+        - type: "boolean"
+
+    - name: "ApplyForce"
+      description: "Apply a force to [Object], taking into account its [Mass](/reference/object#property-mass)."
+      arguments: 
+        - name: "self"
+          type: "Object"
+        - name: "value"
+          type: "Number3"
+
+    - name: "ResetCollisionBox"
+      description: "Resets to [This]'s original collision box. For example, [Player] and [Shape] objects will revert to fitting their model bounding box."
+
+    - name: "Recurse"
+      arguments:
+        - name: "callback"
+          type: "function"
+        - name: "config"
+          type: "table"
+          optional: true
+      description: |
+          Iterates over all descendants of [This] and calls the callback function for each.
+
+          The callback function is called with the descendant as the only argument.
+
+          The `config` table options are as follows,
+          - `includeRoot` whether to include [This] in the iteration. Default `true`.
+          - `depth` the maximum depth of the iteration. Default `-1` (unlimited).
+          - `deepFirst` whether to iterate in depth-first order. Default `false`.
+
+          If you were to remove an object from its parent while recursing through it, the object removal will be delayed until the full recursion is completed.
+
+      samples:
+        - code: |
+            o:Recurse(function(descendant)
+              print(descendant.Name)
+            end, { includeRoot = true })
+
+    - name: "Copy"
+      arguments:
+        - name: "config"
+          type: "table"
+          optional: true
+      description: |
+          Creates a copy of the object, including all its properties and current state.
+          
+          To copy a composite object, you may call `o:Copy({ recurse = true })`. This will copy and replicate the full object hierarchy.

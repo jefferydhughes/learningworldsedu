@@ -1,0 +1,94 @@
+keywords: ["blip", "lua", "luau", "asset", "assets", "load", "import"]
+type: "Assets"
+extends: ""
+description: |
+    [Assets] contains useful functions related to loading external assets into your world.
+
+functions:
+    - name: "Load"
+      description: |
+        Load an item by its full name `"artistname.itemname"` or load the object(s) from a compatible [Data], and call the callback function when done.
+
+        When loading an item (`"artistname.itemname"`), the function returns a table representing the progress of the underlying asynchronous [HTTP] request. You may query its status using `result.Status` or cancel it using `result:Cancel()`, for example if your game needs to load a different scene while some requests did not have time to complete.
+
+        When loading a [Data], there is no underlying request. Instead, the data is immediately processed. You may aquire the [Data] from a local file, from the bundle or from a separate [HTTP] request. If the data isn't supported, `nil` is passed as argument of the callback.
+
+        The following [Data] formats are currently supported when loading objects:
+        - `3ZH` is the open format used by items on the platform.
+        - `VOX` is the MagicaVoxel format.
+        - `GLB` is the `GLTF` open format in its binary form.
+
+        You may choose to filter what type of objects will be loaded using the `filter` parameter, it can be one or several of the following filters (eg. `AssetType.Shape + AssetType.Palette`),
+        - `AssetType.Any` load everything (`3ZH`, `GLB`), this is the default value.
+        - `AssetType.AnyObject` load all [Object] types (`3ZH`, `GLB`) such as [Shape] or [Mesh], [Light], [Camera], etc.
+        - `AssetType.Shape` only load [Shape] objects (`3ZH`).
+        - `AssetType.Palette` only load [Palette] objects (`3ZH`).
+        - `AssetType.Camera` only load [Camera] objects (`GLB`).
+        - `AssetType.Light` only load [Light] objects (`GLB`).
+        - `AssetType.Mesh` only load [Mesh] objects (`GLB`).
+
+        When stripping objects with filters, the hierarchy will be collapsed to remove intermediary objects while preserving the objects original placement.
+
+        The config table parameter has the following options: `{ fromAppBundle, mutable, bakedLight, async }`
+        - `fromAppBundle` when loading an item, load it from app bundle instead of performing an [HTTP] request, `false` by default. This requires the item to be in the app bundle. 
+        - `mutable` when loading [Shape] objects, create them as [MutableShape] so that their model can be edited later, `false` by default.
+        - `bakedLight` when loading [Shape] objects, compute the baked lighting, `false` by default.
+        - `async` whether or not loading the objects should be asynchronous or blocking, `true` by default. This only affects loading the objects, not the [HTTP] request that may be performed when requesting an item.
+      argument-sets:
+        -
+          - name: "itemName"
+            type: "string"
+          - name: "callback"
+            type: "function"
+          - name: "filter"
+            type: "AssetType"
+          - name: "config"
+            type: "table"
+            optional: true
+        -
+          - name: "data"
+            type: "Data"
+          - name: "callback"
+            type: "function"
+          - name: "filter"
+            type: "AssetType"
+          - name: "config"
+            type: "table"
+            optional: true
+      return:
+        - type: "table"
+      samples:
+        - code: |
+            -- load a GLB file from the web
+            local url = "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/main/Models/Duck/glTF-Binary/Duck.glb"
+            local filter = AssetType.AnyObject
+
+            HTTP:Get(url, function(res)
+              if res.StatusCode == 200 then
+                Assets:Load(res.Body, function(assets)
+                  if assets == nil then
+                    return
+                  end
+
+                  -- this list only contains root objects, there usually is only one
+                  for _, asset in ipairs(assets) do
+                    asset:SetParent(World)
+                  end
+                end, filter)
+              end
+            end)
+        - code: |
+            -- load an item
+            local itemName = "voxels.terra"
+            local filter = AssetType.Shape
+
+            Assets:Load(itemName, function(assets)
+              if assets == nil then
+                return
+              end
+
+              -- this list only contains root objects, there usually is only one
+              for _, asset in ipairs(assets) do
+                asset:SetParent(World)
+              end
+            end, filter)

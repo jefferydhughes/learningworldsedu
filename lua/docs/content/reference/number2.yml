@@ -1,0 +1,144 @@
+keywords: ["blip", "lua", "luau", "number2", "vector2", "2d", "coordinates", "position", "math", "xy"]
+type: "Number2"
+description: A Number2 contains 3 [number] values (X & Y). It can represent different things in 2D space, like points or positions.
+
+constructors: 
+  - description: |
+        A Number2 can be created,
+        - without parameter, equivalent to `Number2(0, 0)`
+        - with given x and y values
+    argument-sets:
+      -
+      -
+        - name: "x"
+          type: "number"
+        - name: "y"
+          type: "number"
+
+properties:
+  - name: "Height"
+    type: "number"
+    description: "Same as Y property."
+    
+  - name: "Width"
+    type: "number"
+    description: "Same as X property."
+
+  - name: "X"
+    type: "number"
+    description: "X value of the Number2."
+    samples:
+      - code: |
+          myNumber2.X = 42
+          print(myNumber2.X)
+
+  - name: "Y"
+    type: "number"
+    description: "Y value of the Number2."
+    samples:
+      - code: |
+          myNumber2.Y = 42
+          print(myNumber2.Y)
+
+  - name: "Length"
+    type: "number"
+    description: |
+        Magnitude of the `Number2`.
+
+  - name: "SquaredLength"
+    type: "number"
+    description: |
+      Squared magnitude of the `Number2`.
+  
+  - name: "One"
+    type: "Number2"
+    description: |
+        Shortcut to `Number2(1, 1)`.
+
+        This is a property of the global [This], to be called as `Number2.One`.
+      
+  - name: "Zero"
+    type: "Number2"
+    description: |
+        Shortcut to `Number2(0, 0)`.
+
+        This is a property of the global [This], to be called as `Number2.Zero`.
+  
+  - name: "Right"
+    type: "Number2"
+    description: |
+        Shortcut to unit vector `Number2(1, 0)`.
+
+        This is a property of the global [This], to be called as `Number2.Right`.
+  
+  - name: "Left"
+    type: "Number2"
+    description: |
+        Shortcut to unit vector `Number2(-1, 0)`.
+
+        This is a property of the global [This], to be called as `Number2.Left`.
+  
+  - name: "Up"
+    type: "Number2"
+    description: |
+        Shortcut to unit vector `Number2(0, 1)`.
+
+        This is a property of the global [This], to be called as `Number2.Up`.
+  
+  - name: "Down"
+    type: "Number2"
+    description: |
+        Shortcut to unit vector `Number2(0, -1)`.
+
+        This is a property of the global [This], to be called as `Number2.Down`.
+
+functions:
+  - name: "Copy"
+    return: 
+      - type: "Number2" 
+    description: |
+      Returns a copy of the [Number2].
+    samples:
+      - code: |
+          local n1 = Number2(1, 0, 0)
+          local n2 = n1 -- n2 is not a copy but a direct reference to n1
+          n2.X = 10
+          print(n1.X) -- now n1.X == 10
+
+          -- using Copy:
+          local n1 = Number2(1, 0, 0)
+          local n2 = n1:Copy() -- n2 is a copy of n1, they're not the same Number2
+          n2.X = 10
+          print(n1.X) -- n1.X is still 1
+  
+  - name: "Normalize"
+    return: 
+      - type: "Number2"
+    description: |
+      Normalizes the `Number2` so that its magnitude becomes `1.0`, and return it.
+  
+  - name: "Lerp"
+    description: |
+        Sets this `Number2` to the linear interpolation between two given `Number2` at a given ratio.
+    arguments: 
+      - name: "from"
+        type: "Number2"
+      - name: "to"
+        type: "Number2"
+      - name: "ratio"
+        type: "number"
+  
+  - name: "Set"
+    return: 
+      - type: "Number2"
+    description: |
+        Sets this `Number2`'s components to the given values, and return it.
+    argument-sets:
+        - 
+          - name: "xy"
+            type: "Number2"
+        - 
+          - name: "x"
+            type: "number"
+          - name: "y"
+            type: "number"

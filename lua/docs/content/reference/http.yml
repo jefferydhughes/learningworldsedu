@@ -1,0 +1,228 @@
+keywords: ["blip", "lua", "luau", "http", "request", "api", "web", "networking", "data", "fetch"]
+type: "HTTP"
+
+creatable: false
+description: |
+    [HTTP] can be used to send HTTP requests.
+
+functions:
+    - name: "Get"
+      description: |
+          Sends a GET HTTP request to the provided url.
+          The request is asynchronous, not blocking execution.
+          Response can be obtained through callback function parameter.
+          Optionally, a table with request headers can be provided after the url parameter.
+      argument-sets:
+        -
+          - name: "url"
+            type: "string"
+          - name: "callback"
+            type: "function"
+        -
+          - name: "url"
+            type: "string"
+          - name: "headers"
+            type: "table"
+          - name: "callback"
+            type: "function"
+      samples:
+          - code: |
+              local url = "https://jsonplaceholder.typicode.com/users" -- public test API
+
+              HTTP:Get(url, function(res)
+                if res.StatusCode ~= 200 then
+                  print("Error " .. res.StatusCode)
+                  return
+                end
+                -- body contains array of user objects
+                users,err = JSON:Decode(res.Body)
+                local user = users[1]
+                print(user.id, user.name, user.email)
+                -- prints 1 Leanne Graham Sincere@april.biz
+              end)
+
+
+    - name: "Post"
+      description: |
+          Sends a POST HTTP request to the provided url.
+          The request is asynchronous, not blocking execution.
+          If body is a table it gets JSON encoded, otherwise it is sent as a string or raw [Data].
+          Response can be obtained through callback function parameter.
+          Optionally, a table with request headers can be provided after the url parameter.
+      argument-sets:
+        -
+          - name: "url"
+            type: "string"
+          - name: "body"
+            type: "table"
+          - name: "callback"
+            type: "function"
+        -
+          - name: "url"
+            type: "string"
+          - name: "body"
+            type: "string"
+          - name: "callback"
+            type: "function"
+        -
+          - name: "url"
+            type: "string"
+          - name: "body"
+            type: "Data"
+          - name: "callback"
+            type: "function"
+        -
+          - name: "url"
+            type: "string"
+          - name: "headers"
+            type: "table"
+          - name: "body"
+            type: "table"
+          - name: "callback"
+            type: "function"
+        -
+          - name: "url"
+            type: "string"
+          - name: "headers"
+            type: "table"
+          - name: "body"
+            type: "string"
+          - name: "callback"
+            type: "function"
+        -
+          - name: "url"
+            type: "string"
+          - name: "headers"
+            type: "table"
+          - name: "body"
+            type: "Data"
+          - name: "callback"
+            type: "function"
+      samples:
+          - code: |
+              local url = "https://jsonplaceholder.typicode.com/posts" -- public test API
+              local headers = {}
+              headers["Content-Type"] = "application/json"
+
+              local body = {}
+              body.title = "foo"
+              body.body = "bar"
+              body.userId = 1
+
+              HTTP:Post(url, headers, body, function(res)
+                if res.StatusCode ~= 201 then
+                  print("Error " .. res.StatusCode)
+                  return
+                end
+                -- response contains created post
+                post,err = JSON:Decode(res.Body)
+                print(post.id, post.title, post.body, post.userId)
+                -- prints 101 foo bar 1
+              end)
+
+    - name: "Patch"
+      description: |
+          Sends a PATCH HTTP request to the provided url.
+          The request is asynchronous, not blocking execution.
+          If body is a table it gets JSON encoded, otherwise it is sent as a string or raw [Data].
+          Response can be obtained through callback function parameter.
+          Optionally, a table with request headers can be provided after the url parameter.
+      argument-sets:
+        -
+          - name: "url"
+            type: "string"
+          - name: "body"
+            type: "table"
+          - name: "callback"
+            type: "function"
+        -
+          - name: "url"
+            type: "string"
+          - name: "body"
+            type: "string"
+          - name: "callback"
+            type: "function"
+        -
+          - name: "url"
+            type: "string"
+          - name: "body"
+            type: "Data"
+          - name: "callback"
+            type: "function"
+        -
+          - name: "url"
+            type: "string"
+          - name: "headers"
+            type: "table"
+          - name: "body"
+            type: "table"
+          - name: "callback"
+            type: "function"
+        -
+          - name: "url"
+            type: "string"
+          - name: "headers"
+            type: "table"
+          - name: "body"
+            type: "string"
+          - name: "callback"
+            type: "function"
+        -
+          - name: "url"
+            type: "string"
+          - name: "headers"
+            type: "table"
+          - name: "body"
+            type: "Data"
+          - name: "callback"
+            type: "function"
+      samples:
+          - code: |
+              local url = "https://jsonplaceholder.typicode.com/posts/1" -- public test API
+              local headers = {}
+              headers["Content-Type"] = "application/json"
+
+              local body = {}
+              body.title = "updated title"
+
+              HTTP:Patch(url, headers, body, function(res)
+                if res.StatusCode ~= 200 then
+                  print("Error " .. res.StatusCode)
+                  return
+                end
+                -- response contains updated post
+                post,err = JSON:Decode(res.Body)
+                print(post.id, post.title)
+                -- prints 1 updated title
+              end)
+
+    - name: "Delete"
+      description: |
+          Sends a DELETE HTTP request to the provided url.
+          The request is asynchronous, not blocking execution.
+          Response can be obtained through callback function parameter.
+          Optionally, a table with request headers can be provided after the url parameter.
+      argument-sets:
+        -
+          - name: "url"
+            type: "string"
+          - name: "callback"
+            type: "function"
+        -
+          - name: "url"
+            type: "string"
+          - name: "headers"
+            type: "table"
+          - name: "callback"
+            type: "function"
+      samples:
+          - code: |
+              local url = "https://jsonplaceholder.typicode.com/posts/1" -- public test API
+
+              HTTP:Delete(url, function(res)
+                if res.StatusCode ~= 200 then
+                  print("Error " .. res.StatusCode)
+                  return
+                end
+                print("Post successfully deleted!")
+              end)

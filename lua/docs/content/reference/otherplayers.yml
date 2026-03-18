@@ -1,0 +1,22 @@
+keywords: ["blip", "lua", "luau", "other players", "multiplayer", "network", "remote", "users", "online", "interaction"]
+type: "OtherPlayers"
+description: "OtherPlayers is an array of Players that contains all players except the local one."
+blocks:
+  - text: |
+      [OtherPlayers] is a [array] containing all [Player]s currently connected to the [World], except the local one.
+    
+      [OtherPlayers] is not available to the [Server], because it just wouldn't make sense! 🙂
+
+      Player indexes in [OtherPlayers] are arbitrary, and may change as players join and leave.
+
+  - code: |
+      -- print information about all other players:
+      for _, player in OtherPlayers do
+        print(player.Username, player.UserID, player.ConnectionID)
+      end
+
+      -- another way to iterate:
+      for i = 1, #OtherPlayers do
+        local player = OtherPlayers[i]
+        print(player.Username, player.UserID, player.ConnectionID)
+      end

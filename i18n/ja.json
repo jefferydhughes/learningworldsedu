@@ -1,0 +1,137 @@
+{
+    "Create Account": "アカウント作成",
+    "Sign In": "サインイン",
+    "My age is…": "私の年齢は…",
+    "Please tell us your age,\nit will not affect gameplay.": "年齢を教えてください。\nゲームプレイには影響しません。",
+    "OK": "OK",
+    "Pick a Username!": "ユーザー名を選んで！",
+    "Must start with a letter, followed by letters (a-z) and numbers (0-9) only.": "最初は文字で始め、続いて文字(a-z)と数字(0-9)のみ。",
+    "⚠️ Choose carefully, you can't change it later!": "⚠️ 慎重に選んで、後で変更できません！",
+    "Don't use your real name!": "本名を使わないで！",
+    "This is it!": "これで決まり！",
+    "✅ username is available": "✅ このユーザー名は利用可能",
+    "❌ username is inappropriate": "❌ このユーザー名は不適切",
+    "❌ username already taken": "❌ このユーザー名は既に使用中",
+    "❌ invalid format": "❌ 無効な形式",
+    "❌ failed to validate username": "❌ ユーザー名の検証に失敗",
+    "⚠️ Be safe online! ⚠️\n\nDo NOT share personal details, watch out for phishing, scams and always think about who you're talking to.\n\nIf anything goes wrong, talk to someone you trust. 🙂": "⚠️ オンラインで安全に！ ⚠️\n\n個人情報を共有しないで、フィッシングや詐欺に注意し、誰と話しているか常に考えてください。\n\n何か問題があれば、信頼できる人に相談してください。🙂",
+    "Yes sure!": "はい、もちろん！",
+    "Done!": {
+        "button to exit avatar editor": "完了！"
+    },
+    "Worlds": "ワールド",
+    "Profile": "プロフィール",
+    "Friends": "友達",
+    "Creations": "クリエーション",
+    "🛠️ Creations": "🛠️ クリエーション",
+    "👥 Friends": "👥 友達",
+    "✨ Featured": "✨ 特集",
+    "⭐️ Featured": "⭐️ 特集",
+    "😛 Fun with friends": "😛 友達と楽しむ",
+    "🤠 Playing solo": "🤠 一人で遊ぶ",
+    "🍏 New Items": "🍏 新しいアイテム",
+    "❤️ Top Rated": "❤️ 高評価",
+    "⚔️ Popular Items": "⚔️ 人気アイテム",
+    "✏️ Edit avatar": "✏️ アバター編集",
+    "✏️ Edit bio": "✏️ バイオ編集",
+    "✏️ Edit links": "✏️ リンク編集",
+    "🏗️ Active Creators": "🏗️ 活動中のクリエイター",
+    "all items": "すべてのアイテム",
+    "👥 Add Friends": "👥 友達追加",
+    "sign up": {
+        "button": "サインアップ",
+        "title": "登録"
+    },
+    "Settings": "設定",
+    "Clear cache": "キャッシュクリア",
+    "Account": "アカウント",
+    "🔈 Volume:": "🔈 ボリューム:",
+    "👆 Sensitivity:": "👆 感度:",
+    "🖱️ Sensitivity:": "🖱️ 感度:",
+    "🔍 Zoom Sensitivity:": "🔍 ズーム感度:",
+    "✨ Render Quality:": "✨ レンダリング品質:",
+    "📳 Haptic Feedback:": "📳 ハプティックフィードバック:",
+    "📺 Fullscreen:": "📺 フルスクリーン:",
+    "Logout": {
+        "button": "ログアウト",
+        "title": "ログアウト"
+    },
+    "Login": {
+        "button": "ログイン",
+        "title": "ログイン"
+    },
+    "Who are you? 🙂": "あなたは誰？ 🙂",
+    "Username or Email": "ユーザー名またはメール",
+    "delete account": "アカウント削除",
+    "Account Deletion": "アカウント削除",
+    "Are you sure you want to logout now?": "本当にログアウトしますか？",
+    "Yes! 🙂": "はい！ 🙂",
+    "⚠️ Are you REALLY sure you want to delete your account now?": "⚠️ 本当にアカウントを削除しますか？",
+    "Type your username to confirm:": "確認のためにユーザー名を入力してください：",
+    "🗑️ Delete account": "🗑️ アカウント削除",
+    "⚠️ Clearing all cached data from visited experiences, are you sure about this?": "⚠️ 訪問した体験のキャッシュデータをすべてクリアしますか？",
+    "Yes, clear cache": "はい、キャッシュをクリア",
+    "ON": "オン",
+    "OFF": "オフ",
+    "Bank Account": "銀行口座",
+    "Balance": "残高",
+    "grants: %d": "付与: %d",
+    "purchased: %d": "購入: %d",
+    "earned: %d": "獲得: %d",
+    "grants: -": "付与: -",
+    "purchased: -": "購入: -",
+    "earned: -": "獲得: -",
+    "History": "履歴",
+    "Received (%d)": "受信 (%d)",
+    "Sent (%d)": "送信 (%d)",
+    "Friends (%d)": "友達 (%d)",
+    "Add\nFriends": "友達\n追加",
+    "Search (%d)": "検索 (%d)",
+    "Create": "作成",
+    "What do you want to create?": "何を作成しますか？",
+    "Voxel Item": "ボクセルアイテム",
+    "A Voxel Item is a 3D object made out of cubes.": "ボクセルアイテムはキューブで作られた3Dオブジェクトです。",
+    "Textured 3D Model": "テクスチャ付き3Dモデル",
+    "A 3D object with a texture applied to it. Blip only supports .glb file uploads for this category, for now.": "テクスチャが適用された3Dオブジェクトです。このカテゴリーでは現在、Blipは.glbファイルのアップロードのみをサポートしています。",
+    "Voxel Avatar Equipment": "ボクセルアバター装備",
+    "An Avatar Equipment made out of cubes (haircut, jacket, pants, boots, etc.)": "キューブで作られたアバター装備（ヘアカット、ジャケット、パンツ、ブーツなど）",
+    "World": "ワールド",
+    "A World is a 3D scene with logic. That's what you need to pick if you want to create a game. Templates and AI will help you get started, wether you're a coder or not.": "ワールドはロジックを持つ3Dシーンです。ゲームを作成したい場合はこれを選択してください。テンプレートとAIが、コーダーであってもなくてもスタートをサポートします。",
+    "Image": "画像",
+    "Upload an image (PNG or JPG) that can be used as a texture.": "テクスチャとして使用できる画像（PNGまたはJPG）をアップロードしてください。",
+    "%ds ago": {
+        "time elapsed in days, where %d is the number of days": "%d日前"
+    },
+    "%dm ago": {
+        "time elapsed in minutes, where %d is the number of minutes": "%d分前"
+    },
+    "%dh ago": {
+        "time elapsed in hours, where %d is the number of hours": "%d時間前"
+    },
+    "%dd ago": {
+        "time elapsed in days, where %d is the number of days": "%d日前"
+    },
+    "✨ Recent": "✨ 最近",
+    "❤️ Likes": "❤️ いいね",
+    "👤 Skin": {
+        "avatar editor category": "👤 肌"
+    },
+    "💇 Hair": {
+        "avatar editor category": "💇 髪"
+    },
+    "👀 Eyes": {
+        "avatar editor category": "👀 目"
+    },
+    "🐽 Nose": {
+        "avatar editor category": "🐽 鼻"
+    },
+    "🧥 Jacket": {
+        "avatar editor category": "🧥 ジャケット"
+    },
+    "👞 Shoes": {
+        "avatar editor category": "👞 靴"
+    },
+    "👖 Pants": {
+        "avatar editor category": "👖 パンツ"
+    }
+}

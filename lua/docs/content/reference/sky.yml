@@ -1,0 +1,96 @@
+keywords: ["blip", "lua", "luau", "sky", "skybox", "environment", "atmosphere", "background", "lighting", "climate"]
+type: "Sky"
+extends: ""
+description: |
+    `Sky` defines properties of the scene global lighting and colouring.
+
+properties:
+    - name: "LightColor"
+      type: "Color"
+      description: |
+          Global scene lighting color, default RGB `(255, 255, 234)`.
+          
+          If using a directional [Light] object in the scene, reducing [Sky.LightColor]'s overall brightness will help creating more contrast from the directional light.
+
+    - name: "SkyColor"
+      type: "Color"
+      description: |
+          Top color of the scene background gradient, default RGB `(0, 174, 255)`.
+    
+    - name: "HorizonColor"
+      type: "Color"
+      description: |
+          Middle color of the scene background gradient, default RGB `(153, 242, 255)`.
+    
+    - name: "AbyssColor"
+      type: "Color"
+      description: |
+          Bottom color of the scene background gradient, default RGB `(0, 93, 127)`.
+    
+    - name: "Image"
+      type: "Data"
+      description: |
+        Assign with a compatible cubemap [Data](reference/data) to display it as a skybox. Set it to `false` or `nil` to clear it.
+        
+        When getting this value, it returns `true` if the skybox is currently using cubemap(s).
+
+        Alternatively, you can assign a table of images that will be automatically converted into a cubemap, using any combination of face keys:
+        - `{ top, bottom, right, left, front, back }` where each key must be an image [Data](reference/data). Any or all keys can be set, missing faces will be filled with white.
+        - `{ top, bottom, sides }` where each of the right, left, front and back faces will be set to the same image [Data](reference/data). If top and/or bottom faces are missing, they will be filled with white.
+    
+        Regardless of how you specify the cubemap data, you can choose whether or not filtering should be enabled with the `{ filtering }` key, `true` by default. If you are using a pixelart skybox, you will likely want to set this to `false`.
+
+        The skybox colors [SkyColor](#property-skycolor), [HorizonColor](#property-horizoncolor) and [AbyssColor](#property-abysscolor) are applied multiplicatively on the cubemap. The most common use-case will be to set all of these to `Color.White` to make them neutral. However, it can be used to adjust the cubemap slightly, or to create interesting effects or animations.
+
+        You can optionnally load two cubemaps that can be lerped between at runtime, using the syntax `{ cubemap1, cubemap2, t }`. The two cubemaps can be loaded following any valid combination: each with a single data or table of faces data. The lerp factor `t` can be animated at runtime to mix between the two cubemaps.
+      samples:
+        - code: |
+            -- skybox loaded from cubemap file data
+            Sky.Image = Data:FromBundle("images/skybox.ktx")
+
+            -- filtering is ON by default, turn it OFF if using a pixelart skybox
+            Sky.Image = { Data:FromBundle("images/skybox.ktx"), filtering = false }
+
+            -- skybox loaded from a full set of images
+            Sky.Image = {
+              top = Data:FromBundle("images/top.jpg"),
+              bottom = Data:FromBundle("images/bottom.jpg"),
+              right = Data:FromBundle("images/right.jpg"),
+              left = Data:FromBundle("images/left.jpg"),
+              front = Data:FromBundle("images/front.jpg"),
+              back = Data:FromBundle("images/back.jpg")
+            }
+
+            -- skybox loaded from set of images, with replicated right, left, front, and back
+            Sky.Image = {
+              top = Data:FromBundle("images/top.jpg"),
+              bottom = Data:FromBundle("images/bottom.jpg"),
+              sides = Data:FromBundle("images/seamlessLandscape.jpg")
+            }
+
+            -- skybox loaded from partial set of images, any missing face will be white (here top and bottom)
+            Sky.Image = {
+              right = Data:FromBundle("images/right.jpg"),
+              left = Data:FromBundle("images/left.jpg"),
+              front = Data:FromBundle("images/front.jpg"),
+              back = Data:FromBundle("images/back.jpg")
+            }
+
+            -- remove cubemap(s)
+            Sky.Image = nil -- or false
+
+            -- skybox colors are applied multiplicatively with cubemap
+            -- most common use-case is to set them to white, but it can be used to create interesting effects
+            Sky.SkyColor = Color.White
+            Sky.HorizonColor = Color.White
+            Sky.AbyssColor = Color.White
+
+            -- preload two cubemaps to lerp later
+            Sky.Image = {
+              cubemap1, -- all options described above to load a cubemap can be used here
+              cubemap2,
+              t = 0.0
+            }
+
+            -- animate the lerp value later, for example in Client.Tick function
+            Sky.Image = { t = animatedValue }

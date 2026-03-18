@@ -1,0 +1,47 @@
+# Ignore everything
+*
+
+# Allow files and folders with a pattern starting with !
+
+# bundle
+!bundle
+bundle/shaders
+!bundle/shaders/essl
+
+# core
+!core/*.c
+!core/*.h
+
+# deps
+!deps/bgfx/bgfx/3rdparty
+!deps/bgfx/bgfx/examples/common
+!deps/bgfx/bgfx/include
+!deps/bgfx/bgfx/scripts
+!deps/bgfx/bgfx/src
+!deps/bgfx/bimg
+!deps/bgfx/bx
+!deps/deptool/cmd/deptool_linux_x86_64
+!deps/libluau/_active_/prebuilt/source
+!deps/lpng/src
+!deps/miniaudio
+!deps/xptools/common
+!deps/xptools/deps
+!deps/xptools/include
+!deps/xptools/web
+
+# i18n
+!i18n/*.json
+
+# lua/modules
+!lua/modules/*.lua
+
+!common
+!deps/gif_load/gif_load.h
+!deps/hasher/linux/amd64
+!deps/hasher/linux/arm64
+!go/cu.bzh/cors
+!go/cu.bzh/wasmserver
+!wasm/Particubes
+wasm/Particubes/build
+# TODO: remove editions
+!wasm/editions

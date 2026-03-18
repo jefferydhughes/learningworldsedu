@@ -1,0 +1,30 @@
+keywords: ["blip", "lua", "luau", "collision groups", "physics", "interaction", "masks", "filtering", "layers", "detection"]
+type: "CollisionGroups"
+
+description: |
+    `CollisionGroups` represents an [array] of collision group numbers between `1` and `12`.
+
+    Collision groups are used to define how objects in the world collide with each others.
+    
+    By default, the [Map] is in group `1`, [Player]s in group `2` any other objects in group `3` ; players and objects collide with other objects and the map. This behavior can be changed by setting different collision groups.
+
+constructors:
+  - description: |
+      Creates an empty [CollisionGroups].
+
+  - description: |
+      Creates a [CollisionGroups] with given group numbers.
+    arguments:
+    - name: "group1"
+      type: "number"
+    - name: "group2"
+      type: "number"
+    - name: "..."
+      type: "number"
+    samples:
+      - code: |
+          local groups1 = CollisionGroups(1, 2, 3)
+          local groups2 = CollisionGroups(2, 3, 1)
+          if groups1 == groups2 then
+            print("both groups are the same")
+          end

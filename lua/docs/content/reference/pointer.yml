@@ -1,0 +1,215 @@
+keywords: ["blip", "lua", "luau", "pointer", "input", "touch", "mouse", "click", "interaction", "selection"]
+type: "Pointer"
+description: |
+    Pointer is a shortcut to [Client].[Pointer].
+    
+    Pointer allows to catch user pointer events (mouse events or touch events depending on the device).
+
+    It's a useful abstraction allowing inputs to work on any platform (PC, mobile, web, etc.).
+
+    It's a useful abstraction allowing inputs to work on any platform. (PC, mobile, web, etc.)
+
+    Even if there's no such thing as a visual pointer on a touch screen, we do consider 2 modes: `pointer shown` and `pointer hidden`.
+
+blocks:
+    - text: |
+        Pointer is a shortcut to [Client].[Pointer].
+      
+        Pointer allows to catch user pointer events. (mouse events or touch events depending on the device)
+
+        It's a useful abstraction allowing inputs to work on any platform. (PC, mobile, web, etc.)
+
+        ⚠️ Even if there's no such thing as a visual pointer on a touch screen, we do consider 2 modes: `pointer shown` and `pointer hidden`.
+
+    - subtitle: "Pointer Shown"
+
+    - text: |
+        Switching to that mode when calling [Pointer:Show()](/reference/pointer#functions-show).
+
+        When the pointer is "shown":
+
+        [Pointer.Click](/reference/pointer#property-click), [Pointer.Down](/reference/pointer#property-down) and [Pointer.Up](/reference/pointer#property-up) functions are called on left clicks or one finger touches (when the action is not caught by a button or some other [LocalEvent] listener first).
+
+        [Pointer.Drag](/reference/pointer#property-drag) is called when moving the mouse or finger between `down` and `up` events.
+
+        [Pointer.Drag2](/reference/pointer#property-drag) is called when moving the mouse while pressing right click, or moving on a touch screen with 2 fingers down.
+
+        [Pointer.Zoom](/reference/pointer#property-drag) is called scrolling with the mouse wheel or pinching in/out with 2 fingers.
+
+        These actions are disabled: [Client.AnalogPad](/reference/client#property-analogpad), [Client.Action2](/reference/client#property-action2), [Client.Action2Release](/reference/client#property-action2release), [Client.Action3](/reference/client#property-action3), [Client.Action3Release](/reference/client#property-action3release)
+
+        ([Client.DirectionalPad](/reference/client#property-directionalpad), [Client.Action1](/reference/client#property-action1) & [Client.Action1Release](/reference/client#property-action1release) remain available)
+
+    - subtitle: "Pointer hidden"
+
+    - text: |
+        Switching to that mode when calling [Pointer:Hide()](/reference/pointer#functions-hide).
+
+        When the pointer is "hidden":
+
+        [Client.DirectionalPad](/reference/client#property-directionalpad) is called when activating directional keys (WASD keys on a QWERTY keyboard by default) or the directional pad on touch screens (available in both modes).
+
+        [Client.AnalogPad](/reference/client#property-analogpad) is called when moving the mouse or moving on a touch screen with one finger down. It's often used to control the camera.
+
+        All 3 action buttons are available: [Client.Action1](/reference/client#property-action1), [Client.Action1Release](/reference/client#property-action1release), [Client.Action2](/reference/client#property-action2), [Client.Action2Release](/reference/client#property-action2release), [Client.Action3](/reference/client#property-action3), [Client.Action3Release](/reference/client#property-action3release)
+
+
+functions:
+    - name: "Show"
+      description: |
+          [Pointer] callbacks start being triggered on mouse and touch events.
+
+          User interface elements such as [Button]s become active.
+      samples:
+        - code: |
+            Pointer:Show()
+    - name: "Hide"
+      description: |
+          Virtual game pads appear on touch screens. 
+
+          Direction keys and gamepad start triggering [Client.DirectionDidChange](/reference/client#property-directiondidchange) 
+
+          The pointer is hidden by default.
+      samples:
+          - code: |
+              Pointer:Hide()
+
+properties:
+
+    - name: "Click"
+      type: function
+      description: |
+          Triggered when pressing and releasing pointer at same position (left mouse button click or one touch finger down and up).
+          The callback parameter is a [PointerEvent].
+      samples:
+        - code: |
+            Pointer.Click = function(pointerEvent)
+                print(pointerEvent.X, pointerEvent.Y)
+            end
+
+    - name: "Down"
+      type: function
+      description: |
+          Triggered when pressing the pointer (left mouse button or one touch finger down).
+          The callback parameter is a [PointerEvent].
+      samples:
+        - code: |
+            Pointer.Down = function(pointerEvent)
+                print(pointerEvent.X, pointerEvent.Y)
+            end
+
+    - name: "Up"
+      type: function
+      description: |
+          Triggered when the pointer is released.
+          The callback parameter is a [PointerEvent].
+      samples:
+        - code: |
+            Pointer.Up = function(pointerEvent)
+                print(pointerEvent.X, pointerEvent.Y)
+            end
+
+    - name: "DragBegin"
+      type: function
+      description: "Triggered when the pointer is moved while down, starting a drag motion."
+      samples:
+        - code: |
+            Pointer.DragBegin = function()
+                -- initialize some variables
+            end
+
+    - name: "Drag"
+      type: function
+      description: |
+          Triggered every frame the pointer is moved after a drag motion started.
+          The callback parameter is a [PointerEvent] with non-zero [DX](/reference/pointerevent#property-dx) and [DY](/reference/pointerevent#property-dy) values.
+      samples:
+        - code: |
+            Pointer.Drag = function(pointerEvent)
+                print(pointerEvent.DX, pointerEvent.DY)
+            end
+
+    - name: "DragEnd"
+      type: function
+      description: "Triggered when the pointer is released during a drag motion, ending it."
+      samples:
+        - code: |
+            Pointer.DragEnd = function()
+                -- cleanup some variables
+            end
+
+    - name: "Drag2Begin"
+      type: function
+      description: "Triggered when the pointer is moved with right mouse button or 2 touch fingers down, starting a drag2 motion."
+      samples:
+        - code: |
+            Pointer.Drag2Begin = function()
+                -- initialize some variables
+            end
+
+    - name: "Drag2"
+      type: function
+      description: |
+          Triggered every frame the pointer is moved after a drag2 motion started (right mouse button or 2 touch fingers).
+          The callback parameter is a [PointerEvent] with non-zero [DX](/reference/pointerevent#property-dx) and [DY](/reference/pointerevent#property-dy) values.
+      samples:
+        - code: |
+            Pointer.Drag2 = function(pointerEvent)
+                print(pointerEvent.DX, pointerEvent.DY)
+            end
+
+    - name: "Drag2End"
+      type: function
+      description: "Triggered when the pointer is released during a drag2 motion, ending it."
+      samples:
+        - code: |
+            Pointer.Drag2End = function()
+                -- cleanup some variables
+            end
+
+    - name: "LongPress"
+      type: function
+      description: | 
+          Triggered when pressing for a long time without moving.
+          The callback parameter is a [PointerEvent].
+      samples:
+        - code: |
+            Pointer.LongPress = function(pointerEvent)
+                local impact = pointerEvent:CastRay()
+                if impact.Block ~= nil then
+                    impact.Block:Remove()
+                end
+            end
+
+    - name: "Zoom"
+      type: function
+      description: "Triggered when scrolling with mouse wheel or pinching in/out with 2 fingers."
+      samples:
+        - code: |
+            Pointer.Zoom = function(zoomValue)
+                -- example: move the camera forward/backward based on the zoom value
+                Camera.Position = Camera.Position - Camera.Forward * zoomSpeed * zoomValue
+            end
+
+    - name: "Cancel"
+      type: function
+      description: "Triggered after a down event, if the pointer action is interrupted by another event (releasing outside the app, phone call, etc)."
+      samples:
+        - code: |
+            Pointer.Cancel = function()
+                -- cleanup some variables
+            end
+
+    - name: "IsHidden"
+      type: "boolean"
+      read-only: true
+      description: |
+          True if the [Pointer] is hidden, false otherwise.
+      samples:
+          - code: |
+              Pointer:Show()
+              print(Pointer.IsHidden) -- false
+              Pointer:Hide()
+              print(Pointer.IsHidden) -- true
+
+    

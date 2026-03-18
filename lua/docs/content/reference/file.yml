@@ -1,0 +1,37 @@
+keywords: ["blip", "lua", "luau", "file", "storage", "io", "read", "write", "filesystem", "data"]
+type: "File"
+
+creatable: false 
+
+blocks:
+  - text: |
+      [File] allows the script to read a file from a user's device.
+
+functions:
+  - name: "OpenAndReadAll"
+    description: |
+        Returns the selected file's [Data] through the result argument of the provided callback. The function is called once the user has chosen a file.
+    arguments:
+    - name: "callback"
+      type: "function"
+    samples:
+      - code: |
+          File:OpenAndReadAll(function(success, result)
+            -- success is a boolean
+            if not success then
+              print("Could not read file")
+              return
+            end
+
+            -- the user has cancelled the file selection
+            if result == nil then
+              print("No file selected")
+              return
+            end
+
+            -- result is a Data instance
+            local str = result:ToString()
+            if string.sub(str, 1, 6) == "CUBZH!" then
+              print("It's a Blip file!")
+            end
+          end)

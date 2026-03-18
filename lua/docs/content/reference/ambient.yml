@@ -1,0 +1,28 @@
+keywords: ["blip", "lua", "luau", "ambient", "light", "environment", "scene", "lighting", "global", "mood"]
+type: "Ambient"
+extends: ""
+description: |
+    `Ambient` defines a number of general lighting and color properties. It is only accessible through [Light](/reference/light).[This].
+
+properties:
+    - name: "SkyLightFactor"
+      type: "number"
+      description: |
+          Factor representing what fraction of sky light color [Sky.SkyLightColor](/reference/sky#property-skylightcolor) will contribute to dynamic ambient color, default `0.1`.
+
+    - name: "DirectionalLightFactor"
+      type: "number"
+      description: |
+          Factor representing what fraction of the scene's directional lights color [Light.Color](/reference/light#property-color) will contribute to dynamic ambient color, default `0.2`.
+
+    - name: "Color"
+      type: "Color"
+      description: |
+          Overrides the ambient color to the given value, setting this disables dynamic ambient color.
+
+          Set back to `nil` to switch back to dynamic ambient color which is based on scene lighting.
+    
+    - name: "Intensity"
+      type: "number"
+      description: |
+          Factor multiplying the light value of all [Shape](/reference/shape)'s baked lighting. Default is `1.0`, a value of `0.0` would turn OFF the global light source inside baked lighting. Note that light blocks are not affected by this factor.

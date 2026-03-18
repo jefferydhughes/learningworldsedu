@@ -1,0 +1,137 @@
+{
+    "Create Account": "Создать аккаунт",
+    "Sign In": "Войти",
+    "My age is…": "Мой возраст...",
+    "Please tell us your age,\nit will not affect gameplay.": "Укажи свой возраст,\nэто не повлияет на игру.",
+    "OK": "ОК",
+    "Pick a Username!": "Выбери ник!",
+    "Must start with a letter, followed by letters (a-z) and numbers (0-9) only.": "Должен начинаться с буквы, затем только буквы (a-z) и цифры (0-9).",
+    "⚠️ Choose carefully, you can't change it later!": "⚠️ Выбирай внимательно, изменить нельзя!",
+    "Don't use your real name!": "Не используй своё настоящее имя!",
+    "This is it!": "Готово!",
+    "✅ username is available": "✅ ник доступен",
+    "❌ username is inappropriate": "❌ ник не подходит",
+    "❌ username already taken": "❌ ник уже занят",
+    "❌ invalid format": "❌ неверный формат",
+    "❌ failed to validate username": "❌ ошибка проверки ника",
+    "⚠️ Be safe online! ⚠️\n\nDo NOT share personal details, watch out for phishing, scams and always think about who you're talking to.\n\nIf anything goes wrong, talk to someone you trust. 🙂": "⚠️ Будь осторожен в сети! ⚠️\n\nНе делись личной информацией, остерегайся фишинга, мошенничества и всегда думай, с кем общаешься.\n\nЕсли что-то пойдет не так, поговори с кем-то, кому доверяешь. 🙂",
+    "Yes sure!": "Да, конечно!",
+    "Done!": {
+        "button to exit avatar editor": "Готово!"
+    },
+    "Worlds": "Миры",
+    "Profile": "Профиль",
+    "Friends": "Друзья",
+    "Creations": "Творения",
+    "🛠️ Creations": "🛠️ Творения",
+    "👥 Friends": "👥 Друзья",
+    "✨ Featured": "✨ Избранное",
+    "⭐️ Featured": "⭐️ Избранное",
+    "😛 Fun with friends": "😛 Весело с друзьями",
+    "🤠 Playing solo": "🤠 Играть в одиночку",
+    "🍏 New Items": "🍏 Новые предметы",
+    "❤️ Top Rated": "❤️ Лучшие",
+    "⚔️ Popular Items": "⚔️ Популярные предметы",
+    "✏️ Edit avatar": "✏️ Аватар",
+    "✏️ Edit bio": "✏️ Биография",
+    "✏️ Edit links": "✏️ Ссылки",
+    "🏗️ Active Creators": "🏗️ Активные создатели",
+    "all items": "все предметы",
+    "👥 Add Friends": "👥 Добавить друзей",
+    "sign up": {
+        "button": "зарегистрироваться",
+        "title": "регистрация"
+    },
+    "Settings": "Настройки",
+    "Clear cache": "Очистить кэш",
+    "Account": "Аккаунт",
+    "🔈 Volume:": "🔈 Громкость:",
+    "👆 Sensitivity:": "👆 Чувствительность:",
+    "🖱️ Sensitivity:": "🖱️ Чувствительность:",
+    "🔍 Zoom Sensitivity:": "🔍 Чувствительность зума:",
+    "✨ Render Quality:": "✨ Качество рендера:",
+    "📳 Haptic Feedback:": "📳 Тактильная отдача:",
+    "📺 Fullscreen:": "📺 Полный экран:",
+    "Logout": {
+        "button": "Выйти",
+        "title": "Выход"
+    },
+    "Login": {
+        "button": "Войти",
+        "title": "Вход"
+    },
+    "Who are you? 🙂": "Кто ты? 🙂",
+    "Username or Email": "Ник или Email",
+    "delete account": "удалить аккаунт",
+    "Account Deletion": "Удаление аккаунта",
+    "Are you sure you want to logout now?": "Ты уверен, что хочешь выйти?",
+    "Yes! 🙂": "Да! 🙂",
+    "⚠️ Are you REALLY sure you want to delete your account now?": "⚠️ Ты действительно уверен, что хочешь удалить аккаунт?",
+    "Type your username to confirm:": "Введите свой ник для подтверждения:",
+    "🗑️ Delete account": "🗑️ Удалить аккаунт",
+    "⚠️ Clearing all cached data from visited experiences, are you sure about this?": "⚠️ Очистка всех кэшированных данных посещенных мест, ты уверен?",
+    "Yes, clear cache": "Да, очистить кэш",
+    "ON": "ВКЛ",
+    "OFF": "ВЫКЛ",
+    "Bank Account": "Банковский счет",
+    "Balance": "Баланс",
+    "grants: %d": "предоставлено: %d",
+    "purchased: %d": "куплено: %d",
+    "earned: %d": "заработано: %d",
+    "grants: -": "предоставлено: -",
+    "purchased: -": "куплено: -",
+    "earned: -": "заработано: -",
+    "History": "История",
+    "Received (%d)": "Получено (%d)",
+    "Sent (%d)": "Отправлено (%d)",
+    "Friends (%d)": "Друзья (%d)",
+    "Add\nFriends": "Добавить\nДрузей",
+    "Search (%d)": "Поиск (%d)",
+    "Create": "Создать",
+    "What do you want to create?": "Что ты хочешь создать?",
+    "Voxel Item": "Воксельный предмет",
+    "A Voxel Item is a 3D object made out of cubes.": "Воксельный предмет - это 3D объект из кубов.",
+    "Textured 3D Model": "Текстурированная 3D модель",
+    "A 3D object with a texture applied to it. Blip only supports .glb file uploads for this category, for now.": "3D объект с текстурой. Blip поддерживает только файлы .glb для этой категории.",
+    "Voxel Avatar Equipment": "Воксельное снаряжение",
+    "An Avatar Equipment made out of cubes (haircut, jacket, pants, boots, etc.)": "Снаряжение из кубов (прическа, куртка, штаны, ботинки и т.д.)",
+    "World": "Мир",
+    "A World is a 3D scene with logic. That's what you need to pick if you want to create a game. Templates and AI will help you get started, wether you're a coder or not.": "Мир - это 3D сцена с логикой. Выбирай это, если хочешь создать игру. Шаблоны и ИИ помогут начать, даже если ты не программист.",
+    "Image": "Изображение",
+    "Upload an image (PNG or JPG) that can be used as a texture.": "Загрузите изображение (PNG или JPG), которое можно использовать как текстуру.",
+    "%ds ago": {
+        "time elapsed in days, where %d is the number of days": "%dд назад"
+    },
+    "%dm ago": {
+        "time elapsed in minutes, where %d is the number of minutes": "%dм назад"
+    },
+    "%dh ago": {
+        "time elapsed in hours, where %d is the number of hours": "%dч назад"
+    },
+    "%dd ago": {
+        "time elapsed in days, where %d is the number of days": "%dд назад"
+    },
+    "✨ Recent": "✨ Недавние",
+    "❤️ Likes": "❤️ Лайки",
+    "👤 Skin": {
+        "avatar editor category": "👤 Кожа"
+    },
+    "💇 Hair": {
+        "avatar editor category": "💇 Волосы"
+    },
+    "👀 Eyes": {
+        "avatar editor category": "👀 Глаза"
+    },
+    "🐽 Nose": {
+        "avatar editor category": "🐽 Нос"
+    },
+    "🧥 Jacket": {
+        "avatar editor category": "🧥 Куртка"
+    },
+    "👞 Shoes": {
+        "avatar editor category": "👞 Обувь"
+    },
+    "👖 Pants": {
+        "avatar editor category": "👖 Штаны"
+    }
+}

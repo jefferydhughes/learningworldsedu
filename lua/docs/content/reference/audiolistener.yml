@@ -1,0 +1,5 @@
+keywords: ["blip", "lua", "luau", "audio listener", "sound", "hearing", "spatial audio", "3d sound", "ears", "listening"]
+type: "AudioListener"
+extends: "Object"
+description: |
+    The `AudioListener` is a microphone-like global variable that can hear the sounds from the various sources in the world and output them in the speakers.

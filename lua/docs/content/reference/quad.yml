@@ -1,0 +1,214 @@
+keywords: ["blip", "lua", "luau", "quad", "2d", "rectangle", "plane", "surface", "texture", "ui"]
+type: "Quad"
+extends: "Object"
+description: |
+    A `Quad` is an object which model has four vertices, forming a square. It can be filled with a color or an image.
+
+    It has many uses in creating UI, building a 2D world, or creating special effects.
+
+    Code examples of [This]'s features can be found in the following worlds,
+    - `Quad Image Test`
+    - `Quad 9-Slice Test`
+    - `Quad Cutout Test`
+    - `Quad Gradient Test`
+    - `Quad Transparency Test`
+
+constructors: 
+  - description: "Creates a Quad with default properties."
+    samples:
+      - code: |
+          local q = Quad()
+
+          -- set quad properties
+          q.Height = 2
+          q.Color = Color(1.0, 1.0, 0.5)
+
+          -- use it as a normal object in the scene
+          q:SetParent(World)
+          q.Position = { x, y, z }
+
+properties:
+    - name: "Color"
+      type: "Color"
+      description: |
+          Color of the quad, white by default. The color of each of the four vertices can also be set individually by passing a table of up to four colors.
+
+          [This].[Color] also features a helper to set up gradients: { gradient="H"/"V" or "X"/"Y", from=color1, to=color2 }.
+          
+          It also gives the option to opt-in to alpha-blending, instead of the default unordered transparency. Opt-in by adding the option: { ..., alpha=true }. Using this option turns OFF some optimizations and is generally slower than default transparency, but more accurate.
+
+          An example of quad gradients can be seen in the world `Quad Gradient Test`.
+      
+      samples:
+        - code: |
+            -- quad color accepts a table of up to four colors
+            q.Color = { vcolor1, vcolor2, vcolor3, vcolor4 }
+
+            -- this sets all colors at once
+            q.Color = Color.Blue
+
+            -- use helper for a horizontal gradient
+            q.Color = { gradient="H", from=Color.Blue, to=Color.Red }
+
+            -- make the quad use default transparency if any given color has alpha < 255
+            local c = Color(255, 0, 0, 120)
+            q.Color = c
+            q.Color = { vcolor1, vcolor2, vcolor3, c }
+
+            -- opt-in to alpha-blending, instead of default transparency, gives more accurate results but is slower
+            q.Color = { c, alpha=true }
+            q.Color = { vcolor1, vcolor2, vcolor3, c, alpha=true }
+
+    - name: "Image"
+      type: "Data"
+      description: |
+          Assign with a compatible image [Data](reference/data) to display it on the quad, with default settings. The effective resolution of the texture depends on the quad model [This].[Size](/reference/quad#property-size), while the scale can be used to upscale or downscale the texture. 
+        
+          When getting this value, it returns `true` if the quad is currently textured. Set it to `false` or `nil` to remove the texture from this quad.
+
+          Alternatively, you can assign a table to have full control over its options:
+          `{ data, slice9, slice9Scale, slice9Width, alpha, cutout, filtering }`,
+          - `data` ([Data](reference/data)) is the image data you would normally set.
+          - `slice9` ([boolean](reference/boolean) or [Number2](reference/number2)) can be set to `true` to activate 9-slice with default UV slice (0.5, 0.5), it can also be set to a custom UV slice directly.
+          - `slice9Scale` ([number](reference/number)) is the scale of the 9-slice corners, default `1.0`.
+          - `slice9Width` ([number](reference/number)) is an optional fixed width. You may use this if you need the 9-slice corners to be of a specific size. In case your asset isn't symetrical, this value corresponds to the width of the top-left 9-slice corner ; all 3 other corners will have a proportional size based of the original dimensions of your asset.
+          - `alpha` ([boolean](reference/boolean)) enables alpha-blending transparency, default `false`. Set this to `true` if you want Blip to use the image alpha.
+          - `cutout` ([boolean](reference/boolean) or [number](reference/number)) can be set to `true` to enable alpha cutout with default cutout `1.0`, or set to a custom cutout directly. This means all texels from the image with alpha value lower than the cutout value will be ignored. This value is typically redundant with `alpha`, and unless you have a specific use-case in mind, you should use one or the other. Animating the cutout value is a great way of creating interesting visual effects.
+          - `filtering` ([boolean](reference/boolean)) will smooth the resulting image when `true` (by default), or keep the texels as they are when `false`. It is recommended to keep this `true` except when using pixelart images, or when using the image as a way to store/visualize data.
+
+          Note: you can also enable transparency on a textured quad by giving it an alpha value less than 255, eg. `quad.Color.A = 254`. This will have it be rendered in an unordered transparency pass, which is more performant but less accurate.
+
+          Code examples of [This].[Image]'s options can be found in the following worlds,
+          - `Quad Image Test`
+          - `Quad 9-Slice Test`
+          - `Quad Cutout Test`
+      samples:
+        - code: |
+            -- make an alpha-blended textured quad
+            q.Image = { data=d, alpha=true }
+
+            -- enable 9-slice with default parameters
+            q.Image = { data=d, slice9=true }
+
+            -- enable 9-slice with custom UV slice, default slice is { 0.5, 0.5 }
+            q.Image = { data=d, slice9={ 0.25, 0.5 } }
+
+            -- enable 9-slice with custom borders scale, default is 1.0
+            q.Image = { data=d, slice9Scale=2.0 }
+
+            -- can be combined
+            q.Image = { data=d, slice9={ 0.6, 0.0 }, slice9Scale=0.8, alpha=true }
+
+            -- make an opaque cutout quad with default value
+            q.Image = { data=d, cutout=true }
+
+            -- make an opaque cutout quad with custom value
+            q.Image = { data=d, cutout=0.2 }
+
+            -- make an opaque cutout quad for a pixelart image
+            q.Image = { data=d, cutout=true, filtering=false }
+
+    - name: "Width"
+      type: "number"
+      description: |
+          Width of the quad model, `1.0` by default.
+
+    - name: "Height"
+      type: "number"
+      description: |
+          Height of the quad model, `1.0` by default.
+    
+    - name: "Size"
+      type: "Number2"
+      description: |
+          Returns the size of the quad model. Equivalent to `Number2(quad.Width, quad.Height)`.
+
+          Can be set to a `number` for a uniform size.
+
+    - name: "Anchor"
+      type: "Number2"
+      description: |
+          Anchor of the quad, `{ 0.0, 0.0 }` by default, which corresponds to the lower left corner.
+        
+          For example, `{ 0.5, 0.0 }` would correspond to the middle of the bottom edge of the quad.
+
+    - name: "Tiling"
+      type: "Number2"
+      description: |
+          Tiling of the texture on this quad. Only has effect if the quad is textured by setting its [This].[Image](/reference/quad#property-image) property.
+          
+          This can be used to repeat a pattern over the quad's surface. Especially useful when combined with a seamless image, to create a continuously textured surface.
+
+    - name: "Offset"
+      type: "Number2"
+      description: |
+          Offset of the texture on this quad. Only has effect if the quad is textured by setting its [This].[Image](/reference/quad#property-image) property.
+          
+          This can be used to select an area of the texture to display, or to create scrolling effects.
+
+    - name: "IsDoubleSided"
+      type: "boolean"
+      description: |
+          If `true`, both sides of the quad are rendered, `true` by default.
+        
+          Setting this to `false` can be done as an optimization when using quads for UI or 2D games.
+
+          Note: currently, quads back faces are not lit.
+
+    - name: "Shadow"
+      type: boolean
+      description: |
+          Whether or not the quad should cast shadows onto other lit objects. [Light](/reference/light) objects set as shadow casters will affect all quads in matching layers (see [Light](/reference/light).[CastsShadows](/reference/light#property-castsshadows)).
+
+          Note that whether or not the quad is affected by lights and shadows from other objects depends on the separate property [This].[IsUnlit](/reference/quad#property-isunlit).
+
+    - name: "Layers"
+      type: "table"
+      description: |
+          Integer or table of integers between 1 and 12. Cameras only render quads corresponding to their layers, and lights only affect quads in matching layers.
+
+    - name: "IsUnlit"
+      type: "boolean"
+      description: |
+          Whether or not the quad should ignore scene lighting, `false` by default. If `true`, the quad won't be affected by any light and shadows from other objects.
+    
+    - name: "IsMask"
+      type: "boolean"
+      description: |
+          Activates masking for this quad. Any children of a quad mask will only be visible within the quad's area on screen.
+
+          Nested masks are supported to a maximum depth of 7. Up to 31 individual masks can be active at a time, nested masks do not count towards this limit.
+
+    - name: "SortOrder"
+      type: "integer"
+      description: |
+          Overrides rendering order for this quad amongst other objects within its rendering pass, which is dictated by the features in use on this quad. Can be set to an integer value between `0` (default) and `255`. A value of `0` means no override.
+
+          Objects with overriden sort order are rendered from sort order `1` to sort order `255`, ignoring any normal ordering. You may assign the same sort order to multiple objects, in which case they are rendered unordered within that shared sort order.
+
+          ⚠️ Note that enabling this will disable depth testing. This is an advanced feature, and it is not recommended to use if you aren't absolutely sure of having a need for it.
+    
+    - name: "DrawMode"
+      type: "table"
+      description: |
+        Enable and configure draw modes using this property. Setting this to `nil` disables all draw modes.
+
+        Currently, two draw modes are supported: `{ blending=<value or table of options>, billboard=<value> }`,
+        - `blending` can be set to one of "additive", "multiplicative", or "subtractive", which will override this quad's default blending. Alternatively, it can be set to a table of options (see below).
+        - `billboard` can be set to `true` to enable screen billboard. Alternatively, it can be set to a specific billboarding method: "screen" (equivalent to `true`, screen billboard without rotation), "horizontal" (locked horizontally), "vertical" (locked vertically), or "screenX"/"screenY"/"screenZ" (use X/Y/Z world rotation)
+        
+        Blending options are,
+        - `mode` to set the blending mode with "additive", "multiplicative" or "subtractive".
+        - `factor` as an integer between `1` and `255`, applied multiplicatively to the final color. Use this to amplify the desired blending, you can then modulate it by setting/animating the quad alpha value.
+
+        Note that billboarded quads cannot be shadowcasters, but can be lit, and that quads using an overriden blending mode are always rendered on top of transparent objects.
+
+        All these options can be set at runtime or animated individually.
+      samples:
+        - code: |
+            -- make a particle (i.e. billboard additive)
+            q.Image = Data:FromBundle("images/particles/dot.png")
+            q.DrawMode = { blending="additive", billboard=true }
+
+            -- make a quad with amplified blending
+            q.DrawMode = { blending={ mode="additive", factor=2} }

@@ -1,0 +1,137 @@
+{
+    "Create Account": "Crear Cuenta",
+    "Sign In": "Iniciar Sesión",
+    "My age is…": "Mi edad es...",
+    "Please tell us your age,\nit will not affect gameplay.": "Por favor dinos tu edad,\nno afectará el juego.",
+    "OK": "OK",
+    "Pick a Username!": "¡Elige un nombre de usuario!",
+    "Must start with a letter, followed by letters (a-z) and numbers (0-9) only.": "Debe comenzar con una letra, seguido solo de letras (a-z) y números (0-9).",
+    "⚠️ Choose carefully, you can't change it later!": "⚠️ ¡Elige con cuidado, no podrás cambiarlo!",
+    "Don't use your real name!": "¡No uses tu nombre real!",
+    "This is it!": "¡Listo!",
+    "✅ username is available": "✅ nombre de usuario disponible",
+    "❌ username is inappropriate": "❌ nombre de usuario inapropiado",
+    "❌ username already taken": "❌ nombre de usuario ya tomado",
+    "❌ invalid format": "❌ formato inválido",
+    "❌ failed to validate username": "❌ error al validar nombre de usuario",
+    "⚠️ Be safe online! ⚠️\n\nDo NOT share personal details, watch out for phishing, scams and always think about who you're talking to.\n\nIf anything goes wrong, talk to someone you trust. 🙂": "⚠️ ¡Sé seguro en línea! ⚠️\n\nNO compartas detalles personales, cuidado con el phishing, estafas y siempre piensa con quién hablas.\n\nSi algo sale mal, habla con alguien de confianza. 🙂",
+    "Yes sure!": "¡Sí, seguro!",
+    "Done!": {
+        "button to exit avatar editor": "¡Listo!"
+    },
+    "Worlds": "Mundos",
+    "Profile": "Perfil",
+    "Friends": "Amigos",
+    "Creations": "Creaciones",
+    "🛠️ Creations": "🛠️ Creaciones",
+    "👥 Friends": "👥 Amigos",
+    "✨ Featured": "✨ Destacados",
+    "⭐️ Featured": "⭐️ Destacados",
+    "😛 Fun with friends": "😛 Diversión con amigos",
+    "🤠 Playing solo": "🤠 Jugando solo",
+    "🍏 New Items": "🍏 Nuevos objetos",
+    "❤️ Top Rated": "❤️ Mejor valorados",
+    "⚔️ Popular Items": "⚔️ Objetos populares",
+    "✏️ Edit avatar": "✏️ Avatar",
+    "✏️ Edit bio": "✏️ Bio",
+    "✏️ Edit links": "✏️ Enlaces",
+    "🏗️ Active Creators": "🏗️ Creadores activos",
+    "all items": "todos los objetos",
+    "👥 Add Friends": "👥 Añadir amigos",
+    "sign up": {
+        "button": "registrarse",
+        "title": "registro"
+    },
+    "Settings": "Ajustes",
+    "Clear cache": "Borrar caché",
+    "Account": "Cuenta",
+    "🔈 Volume:": "🔈 Volumen:",
+    "👆 Sensitivity:": "👆 Sensibilidad:",
+    "🖱️ Sensitivity:": "🖱️ Sensibilidad:",
+    "🔍 Zoom Sensitivity:": "🔍 Sensibilidad del zoom:",
+    "✨ Render Quality:": "✨ Calidad de renderizado:",
+    "📳 Haptic Feedback:": "📳 Retroalimentación háptica:",
+    "📺 Fullscreen:": "📺 Pantalla completa:",
+    "Logout": {
+        "button": "Cerrar sesión",
+        "title": "Cerrar sesión"
+    },
+    "Login": {
+        "button": "Iniciar sesión",
+        "title": "Inicio de sesión"
+    },
+    "Who are you? 🙂": "¿Quién eres? 🙂",
+    "Username or Email": "Usuario o Email",
+    "delete account": "eliminar cuenta",
+    "Account Deletion": "Eliminación de cuenta",
+    "Are you sure you want to logout now?": "¿Estás seguro de que quieres cerrar sesión?",
+    "Yes! 🙂": "¡Sí! 🙂",
+    "⚠️ Are you REALLY sure you want to delete your account now?": "⚠️ ¿Estás REALMENTE seguro de que quieres eliminar tu cuenta?",
+    "Type your username to confirm:": "Escribe tu usuario para confirmar:",
+    "🗑️ Delete account": "🗑️ Eliminar cuenta",
+    "⚠️ Clearing all cached data from visited experiences, are you sure about this?": "⚠️ Borrar todos los datos en caché de experiencias visitadas, ¿estás seguro de esto?",
+    "Yes, clear cache": "Sí, borrar caché",
+    "ON": "ON",
+    "OFF": "OFF",
+    "Bank Account": "Cuenta bancaria",
+    "Balance": "Saldo",
+    "grants: %d": "concedido: %d",
+    "purchased: %d": "comprado: %d",
+    "earned: %d": "ganado: %d",
+    "grants: -": "concedido: -",
+    "purchased: -": "comprado: -",
+    "earned: -": "ganado: -",
+    "History": "Historial",
+    "Received (%d)": "Recibido (%d)",
+    "Sent (%d)": "Enviado (%d)",
+    "Friends (%d)": "Amigos (%d)",
+    "Add\nFriends": "Añadir\nAmigos",
+    "Search (%d)": "Buscar (%d)",
+    "Create": "Crear",
+    "What do you want to create?": "¿Qué quieres crear?",
+    "Voxel Item": "Objeto Voxel",
+    "A Voxel Item is a 3D object made out of cubes.": "Un objeto Voxel es un objeto 3D hecho de cubos.",
+    "Textured 3D Model": "Modelo 3D Texturizado",
+    "A 3D object with a texture applied to it. Blip only supports .glb file uploads for this category, for now.": "Un objeto 3D con textura aplicada. Blip solo admite archivos .glb para esta categoría, por ahora.",
+    "Voxel Avatar Equipment": "Equipo Voxel",
+    "An Avatar Equipment made out of cubes (haircut, jacket, pants, boots, etc.)": "Un equipo de avatar hecho de cubos (corte de pelo, chaqueta, pantalones, botas, etc.)",
+    "World": "Mundo",
+    "A World is a 3D scene with logic. That's what you need to pick if you want to create a game. Templates and AI will help you get started, wether you're a coder or not.": "Un mundo es una escena 3D con lógica. Eso es lo que necesitas elegir si quieres crear un juego. Las plantillas y la IA te ayudarán a comenzar, seas programador o no.",
+    "Image": "Imagen",
+    "Upload an image (PNG or JPG) that can be used as a texture.": "Sube una imagen (PNG o JPG) que se pueda usar como textura.",
+    "%ds ago": {
+        "time elapsed in days, where %d is the number of days": "hace %ds"
+    },
+    "%dm ago": {
+        "time elapsed in minutes, where %d is the number of minutes": "hace %dm"
+    },
+    "%dh ago": {
+        "time elapsed in hours, where %d is the number of hours": "hace %dh"
+    },
+    "%dd ago": {
+        "time elapsed in days, where %d is the number of days": "hace %dd"
+    },
+    "✨ Recent": "✨ Recientes",
+    "❤️ Likes": "❤️ Me gusta",
+    "👤 Skin": {
+        "avatar editor category": "👤 Piel"
+    },
+    "💇 Hair": {
+        "avatar editor category": "💇 Cabello"
+    },
+    "👀 Eyes": {
+        "avatar editor category": "👀 Ojos"
+    },
+    "🐽 Nose": {
+        "avatar editor category": "🐽 Nariz"
+    },
+    "🧥 Jacket": {
+        "avatar editor category": "🧥 Chaqueta"
+    },
+    "👞 Shoes": {
+        "avatar editor category": "👞 Zapatos"
+    },
+    "👖 Pants": {
+        "avatar editor category": "👖 Pantalones"
+    }
+}

@@ -1,0 +1,152 @@
+keywords: ["blip", "lua", "luau", "mesh", "model", "3D", "vertices", "material"]
+type: "Assets"
+extends: ""
+description: |
+    A [Mesh] is an [Object] that carries a 3D model made of vertices.
+
+    As of current version, the mesh vertices are read-only.
+
+properties:
+    - name: "Pivot"
+      type: "Number3"
+      description: |
+          [This]'s pivot is a point expressed in model space (the space where vertices are placed), that acts as a reference for its transformations:
+          - translation is applied from its parent's pivot to its own pivot
+          - rotation is applied around the pivot
+
+          It is set by default to [This]'s geometric center, which is equal to `myMesh.BoundingBox.Min + myMesh.BoundingBox.Center`.
+
+          You can override it with any point, even outside of the [This]'s bounding box, as a way to modify how transformations are applied.
+          Note that setting the pivot to zero effectively means you are using the [This]'s model origin as reference point for transformations.
+
+    - name: "Layers"
+      type: "table"
+      description: |
+          Integer or table of integers between 1 and 12. Cameras only render meshes corresponding to their layers, and lights only affect meshes in matching layers.
+
+    - name: "Shadow"
+      type: boolean
+      description: |
+          Whether or not the mesh should cast shadows onto other lit objects. [Light](/reference/light) objects set as shadow casters will affect all meshes in matching layers (see [Light](/reference/light).[CastsShadows](/reference/light#property-castsshadows)).
+
+          Note that whether or not the mesh is affected by lights and shadows from other objects depends on the separate property [This].[IsUnlit](#property-isunlit).
+
+    - name: "VertexCount"
+      type: number
+      description: |
+          The number of vertices in this mesh.
+
+    - name: "BoundingBox"
+      read-only: true
+      type: Box
+      description: |
+          The bounding box represents the bounds of the [This] in model space (the space where vertices are placed).
+
+          It is the smallest axis-aligned box that encompasses all of [This]'s vertices.
+
+          If you are looking for the bounding box in a different space, see [This].[ComputeLocalBoundingBox](#functions-computelocalboundingbox) and [This].[ComputeWorldBoundingBox](#functions-computeworldboundingbox).
+    
+    - name: "Depth"
+      read-only: true
+      type: "number"
+      description: "Returns [This]'s depth, expressed in model space (the space where vertices are placed). Shortcut to [This].[BoundingBox](#property-boundingbox).[Size](/reference/box#property-size).[Z](/reference/number3#property-z)."
+
+    - name: "Height"
+      read-only: true
+      type: "number"
+      description: "Returns [This]'s height, expressed in model space (the space where vertices are placed). Shortcut to [This].[BoundingBox](#property-boundingbox).[Size](/reference/box#property-size).[Y](/reference/number3#property-y)."
+
+    - name: "Width"
+      read-only: true
+      type: "number"
+      description: "Returns [This]'s width, expressed in model space (the space where vertices are placed). Shortcut to [This].[BoundingBox](#property-boundingbox).[Size](/reference/box#property-size).[X](/reference/number3#property-x)."
+    
+    - name: "Size"
+      read-only: true
+      type: "Number3"
+      description: "Returns [This]'s bounding box size, expressed in model space (the space where vertices are placed). Shortcut to [This].[BoundingBox](#property-boundingbox).[Size](/reference/box#property-size)."
+
+    - name: "Min"
+      read-only: true
+      type: Number3
+      description: |
+          The minimum point of the [This]'s bounding box. Shortcut to [This].[BoundingBox](#property-boundingbox).[Min](/reference/box#property-min).
+
+    - name: "Center"
+      read-only: true
+      type: Number3
+      description: |
+          The center of the [This]'s bounding box. Shortcut to [This].[BoundingBox](#property-boundingbox).[Center](/reference/box#property-center).
+
+    - name: "Max"
+      read-only: true
+      type: Number3
+      description: |
+          The maximum point of the [This]'s bounding box. Shortcut to [This].[BoundingBox](#property-boundingbox).[Max](/reference/box#property-max).
+
+    - name: "IsUnlit"
+      type: "boolean"
+      description: |
+          Whether or not the mesh should ignore scene lighting, `false` by default. If `true`, the mesh won't be affected by any light and shadows from other objects.
+
+    - name: "Material"
+      type: "table"
+      description: |
+        A table of material properties, they are typically set for you when imported from an external file. See the [Assets.Load](/reference/assets#functions-load) function for detail on how to import a mesh.
+
+        The following properties can generally be accessed and changed: `{ metallic, roughness, albedo, emissive, cutout, opaque, doublesided, unlit, filtering }`,
+        - `metallic` is the metallic factor, expressed as a number between `0.0` and `1.0`. It has no effect if the material uses a metallic-roughness map instead.
+        - `roughness` is the roughness factor, expressed as a number between `0.0` and `1.0`. It has no effect if the material uses a metallic-roughness map instead.
+        - `albedo` is a [Color]. If the mesh has an albedo texture, it is applied multiplicatively.
+        - `emissive` is a [Color]. It has no effect if the mesh uses an emissive texture instead.
+        - `cutout` is a number between `0.0` and `1.0`, this is the alpha cutout threshold.
+        - `opaque` is a boolean set to `false` by default. If your mesh is semi-transparent, set this to `true`.
+        - `doublesided` is a boolean set to `false` by default. This generally shouldn't be changed, unless for specific needs or to debug a mesh.
+        - `unlit` is a boolean, equivalent to [Mesh.IsUnlit](#property-isunlit)
+        - `filtering` is a boolean, whether or not filtering should be enabled for all textures of the mesh. Use this only if you need to fix how the mesh looks. Typically, each texture has its own filtering setting (currently not accessible, but set when importing).
+
+        In the current version, whether or not a mesh uses a metallic-roughness map, an albedo texture, an emissive texture and a normal map depends on the file it was imported from. There is currently no way to access or change these textures.
+
+        Note that the mesh metallic-roughness will only be used if [Config.UsePBR](/reference/config#property-usepbr) is `true`.
+        
+        Metallic-roughness is a lighting model that describes how a surface will look when under the effect of a [Light], it is made of three components,
+        - the `albedo` is the base color. It usually comes from an albedo texture.
+        - the `metallic` value determines how reflective the surface must be. It usually comes from a metallic-roughness map. A value of `0.0` means non-metal (like wood) and `1.0` means pure metal (like gold).
+        - the `roughness` value determines how rough the surface must be, making reflections sharp or diffuse accross the surface. It usually comes from a metallic-roughness map. A value of `0.0` means smooth (like a mirror) and `1.0` means rough (like chalk).
+
+        A metallic-roughness map allows to make different part of the mesh have different reflective properties, eg. make only some parts look like a metal while others do not reflect the light. If the mesh doesn't have one, setting the `metallic` and `roughness` values will affect the entirety of the mesh surface.
+
+        Likewise, an emissive map will allow to make only some parts of the mesh emissive. Otherwise, the emissive color is applied to the whole mesh.
+
+functions:
+    - name: "ComputeLocalBoundingBox"
+      description: |
+        Computes and returns the smallest axis-aligned box that encompasses all of [This]'s vertices, in local space (i.e. expressed from [This.Pivot](#property-pivot)).
+      return:
+        - type: "Box"
+
+    - name: "ComputeWorldBoundingBox"
+      description: |
+        Computes and returns the smallest axis-aligned box that encompasses all of [This]'s vertices, in world space (i.e. expressed from the origin of the world, which corresponds to the [World] object).
+      return:
+        - type: "Box"
+    
+    - name: "GetVertex"
+      description: |
+        Returns the vertex attributes at given index, as a table: `{ position, normal, uv, color }`,
+        - `position` is a [Number3], the vertex position expressed in model space.
+        - `normal` is a [Number3], the vertex normal expressed in model space.
+        - `uv` is a [Number2], the vertex UV in texture coordinates.
+        - `color` is a [Color], the vertex color.
+
+        As of current version, the vertex attributes are read-only. This is mostly useful to debug a mesh.
+      arguments: 
+        - name: "index"
+          type: "number"
+      return:
+        - type: "table"
+
+    - name: "FlipTriangles"
+      description: |
+        Flips the winding order of the mesh's triangles. Use this to debug or quickly fix a mesh that has the wrong triangles winding order.
+            

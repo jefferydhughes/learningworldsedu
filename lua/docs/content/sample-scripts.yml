@@ -1,0 +1,398 @@
+keywords: ["blip", "game", "mobile", "scripting", "cube", "voxel", "world", "Minecraft", "Roblox", "code", "documentation", "docs"]
+title: "Sample Scripts"
+blocks:
+    - text: |
+        This page contains a collection of sample scripts demoing a good variety of features available in [Blip](https://blip.game).
+
+        This list is not exaustive but is a great start to learn Blip, or even later on when looking for a reference when implementing one new kind of feature.
+
+    - title: "Script Structure"
+    - text: |
+        Here's an example showing the overall structure of a Blip script.
+        It's important to note that for multiplayer games, the execution of the script is distributed between connected clients and the server.
+        Keeping everything in one place makes it easier to reason about game logic.
+    - code: |
+        -- A single Blip script is by default executed on the client AND server.
+        -- A variable defined at the root level (local or global)
+        -- will exist on both client and server:
+        local someVariable = "hello"
+
+        -- Client properties will only be considered on the client:
+
+        function dropPlayer()
+            Player:SetParent(World)
+            Player.Position = {0, 40, 0}
+        end
+
+        Client.OnStart = function()
+            print("game started!")
+            dropPlayer()
+
+            Camera.Behavior = {
+                positionTarget = Player, -- camera goes to that position (or position of given object)
+                positionTargetOffset = { 0, 14, 0 }, -- applying offset to the target position
+                positionTargetBackoffDistance = 40, -- camera then tries to backoff that distance, considering collision
+                positionTargetMinBackoffDistance = 20,
+                positionTargetMaxBackoffDistance = 100,
+                rotationTarget = Player.Head, -- camera rotates to that rotation (or rotation of given object)
+                rigidity = 0.5, -- how fast the camera moves to the target
+                collidesWithGroups = nil, -- camera will not go through objects in these groups
+            }
+        end
+
+        Client.Action1 = function()
+            if Player.IsOnGround then
+                Player.Velocity.Y = 100
+            end
+        end
+
+        Client.Tick = function(dt)
+            -- tick at each frame, dt: time since last tick
+            if Player.Position.Y < -100 then
+                -- respawn player when falling off
+                dropPlayer()
+            end
+        end
+
+        Client.DidReceiveEvent = function(event)
+            if event.message ~= nil then
+                print("received: " .. event.message)
+            end
+        end
+
+        -- Server properties will only be considered on the server:
+
+        Server.OnStart = function()
+            visits = 0
+        end
+
+        Server.OnPlayerJoin = function(p)
+            -- Player `p` just joined the game, let's send a message:
+            visits += 1
+            local e = Event()
+            e.message = "Hello " .. p.Username .. "! You are the " .. visits .. "th player to join!"
+            e:SendTo(p)
+        end
+
+    - title: "User Interface"
+
+    - subtitle: "How to build a simple User Interface"
+
+    - text: |
+        Here's an example showing how to create a user interface with buttons, texts and frame containers. It's highly recommended to use a module like `uikit` to build the UI. `uikit` is used to build all systems UI in Blip.
+
+    - code: |
+        Modules = { 
+            uikit = "uikit" -- imports `uikit` module, exposed globally as `uikit`
+        }
+
+        Client.OnStart = function()
+            
+            -- TEXTS
+
+            local text = uikit:createText("Hello, world!")
+            -- All uikit components are bottom left anchored
+            -- and positioned relative to the bottom left corner of their parent.
+            -- By default, the parent is the screen.
+            text.pos = {10, 10}
+
+            -- Text components accept some style properties.
+            -- Here's an example with a text to display a score at the top right corner of the screen:
+            
+            local scoreValue = 0
+            local score = uikit:createText(string.format("Score: %d", scoreValue), {
+                color = Color(235, 203, 139),
+                size = "big", -- options: "small", "default" (default), "big"
+                align = "right", -- options: "left" (default), "center", "right"
+                outline = 1.0,
+                outlineColor = Color(122, 172, 187),
+                bold = true,
+            })
+
+            -- to ensure responsiveness, it's a good practice to position the component within its `parentDidResize` callback:
+            score.parentDidResize = function(self)
+                self.pos = {
+                    -- Screen.SafeArea helps considering device special areas (e.g. notch on iPhone)
+                    -- Screen.SafeArea.Bottom, Top, Left & Right represent positive distances from each edge.
+                    Screen.Width - Screen.SafeArea.Right - self.Width - 10,
+                    Screen.Height - Screen.SafeArea.Top - self.Height - 10
+                }
+            end
+            score:parentDidResize() -- call once manually to set initial position
+
+            -- BUTTONS
+
+            -- here's how to create a button with default style:
+            local button = uikit:button({
+                content = "Increase score!",
+            })
+
+            -- center the button
+            button.parentDidResize = function(self)
+                self.pos = {
+                    Screen.Width * 0.5 - self.Width * 0.5,
+                    Screen.Height * 0.5 - self.Height * 0.5
+                }
+            end
+            button:parentDidResize() -- call once manually to set initial position
+
+            -- Add a callback to the button
+            button.onRelease = function()
+                scoreValue += 1 
+                score.Text = string.format("Score: %d", scoreValue) -- update text component with new score
+                score:parentDidResize() -- update position considering new score text width
+            end
+        end
+
+    - title: "Physics and Collisions"
+
+    - subtitle: "Simple physics and pointer raycasting"
+
+    - text: |
+        Here's an example of a world showcasing simple physics and pointer raycasting.
+
+    - code: |
+        Modules = {
+            controls = "controls",
+        }
+
+        -- Dev.DisplayColliders = true -- uncomment to display colliders
+
+        local collisionGroupMap = CollisionGroups(1) -- collision group for Objects that are part of the map
+        local collisionGroupPlayers = CollisionGroups(2) -- collision group for Players
+        local collisionGroupObjects = CollisionGroups(3) -- collision group for Objects that are not part of the map
+        local collisionGroupTomatoes = CollisionGroups(4) -- collision group for tomatoes
+
+        -- declaring local variables upstream so that they can be captured as upvalues,
+        -- values are assigned in Client.OnStart if found in the World.
+        local trampoline = nil
+        local tomato = nil
+        local cat = nil
+
+        local tomatoes = {} -- recycle pool for tomatoes
+
+        Client.OnStart = function()
+            World:Recurse(function(o)
+                if o.Name == "trampoline" then
+                    trampoline = o
+                    -- bounciness == 1: maintain velocity
+                    -- bounciness > 1: increase velocity
+                    -- bounciness < 1: decrease velocity
+                    trampoline.Bounciness = 1.1
+                elseif o.Name == "tomato" then
+                    tomato = o
+                    tomato.CollisionGroups = collisionGroupTomatoes
+                    tomato.CollidesWithGroups = collisionGroupMap + collisionGroupObjects
+                    tomato.Physics = PhysicsMode.Dynamic
+                    tomato:RemoveFromParent() -- tomato is used as a projectile, we don't need it in the scene
+                elseif o.Name == "cat" then
+                    cat = o
+                    cat.Physics = PhysicsMode.Dynamic
+                    -- cat can collide with map and other objects like the trampoline
+                    cat.CollisionGroups = collisionGroupObjects
+                    cat.CollidesWithGroups = collisionGroupMap + collisionGroupObjects 
+
+                    -- creating a trigger box to detect when the player is close to the cat,
+                    -- when that happens, the cat will look at the player.
+                    local catTrigger = Object()
+                    catTrigger.Physics = PhysicsMode.Trigger
+                    catTrigger.CollisionGroups = nil
+                    catTrigger.CollidesWithGroups = collisionGroupPlayers
+                    catTrigger:SetParent(cat)
+                    local triggerBoxSize = cat.CollisionBox.Size * 4
+                    local halfSize = triggerBoxSize * 0.5
+                    catTrigger.CollisionBox = Box(
+                        Number3(-halfSize.Width, 0, -halfSize.Depth),
+                        Number3(halfSize.Width, halfSize.Height * 2, halfSize.Depth)
+                    )
+
+                    local lookAtPlayerListener
+                    catTrigger.OnCollisionBegin = function(o, other)
+                        if other == Player then
+                            if lookAtPlayerListener == nil then
+                                -- creating a tick listener to keep updating the cat's rotation
+                                lookAtPlayerListener = LocalEvent:Listen(LocalEvent.Name.Tick, function(dt)
+                                    local p1 = cat.Position:Copy() p1.Y = 0
+                                    local p2 = Player.Position:Copy() p2.Y = 0
+                                    cat.Rotation:SetLookRotation(p2 - p1)
+                                end)
+                            end
+                        end
+                    end
+
+                    catTrigger.OnCollisionEnd = function(o, other)
+                        if other == Player then
+                            if lookAtPlayerListener then
+                                lookAtPlayerListener:Remove()
+                                lookAtPlayerListener = nil
+                            end
+                        end
+                    end
+                end
+            end)
+
+            Player:SetParent(World)
+            Player.Position = {0, 40, 0}
+
+            Camera.Behavior = {
+                positionTarget = Player, -- camera goes to that position (or position of given object)
+                positionTargetOffset = { 0, 14, 0 }, -- applying offset to the target position
+                positionTargetBackoffDistance = 40, -- camera then tries to backoff that distance, considering collision
+                positionTargetMinBackoffDistance = 20,
+                positionTargetMaxBackoffDistance = 100,
+                rotationTarget = Player.Head, -- camera rotates to that rotation (or rotation of given object)
+                rigidity = 0.5, -- how fast the camera moves to the target
+                collidesWithGroups = nil, -- camera will not go through objects in these groups
+            }
+        end
+
+        -- Click to make cat jump if close enough, otherwise throws a tomato
+        Pointer.Click = function(pointerEvent)
+            -- cast ray considering only objects for impact
+            if cat ~= nil then
+                local impact = pointerEvent:CastRay(collisionGroupObjects) 
+                if impact.Object == cat then
+                    -- we could check impact.Distance here (distance between cat and ray origin), 
+                    -- but the distance between the player and the cat makes a bit more sense in that situation.
+                    local diff = Player.Position - cat.Position
+                    if diff.Length < 70 then -- check if close enough to cat
+                        cat.Velocity.Y = 50
+                        return
+                    end
+                end
+            end
+
+            -- table.remove returns nil if the table is empty,
+            -- this is a good way to implement recycling pools.
+            -- (table.remove to reuse, table.insert to recycle)
+            local t = table.remove(tomatoes) -- get tomato from pool
+            if t == nil then
+                if tomato then
+                    t = tomato:Copy()
+                end
+            end
+            if t == nil then
+                return -- couldn't get nor create tomato
+            end
+            t:SetParent(World)
+            t.Position = Player.Position + Player.Forward * 2
+            t.Velocity = Player.Forward * 90 + Number3(0, 100, 0)
+            -- recycle tomatoes after 5 seconds
+            Timer(5, function()
+                t:RemoveFromParent()
+                table.insert(tomatoes, t)
+            end)
+        end
+
+        -- PLAYER CONTROLS 
+
+        -- jump function
+        Client.Action1 = function()
+            if Player.IsOnGround then
+                Player.Velocity.Y = 100
+            end
+        end
+
+        local playerSpeed = 50
+
+        -- Client.DirectionalPad is only called when x or y changes (not repeatedly)
+        Client.DirectionalPad = function(x, y)
+            Player.Motion = (Player.Forward * y + Player.Right * x) * playerSpeed
+        end
+
+        -- Called when Pointer is "shown" (Pointer.IsHidden == false), which is the case by default.
+        Pointer.Drag = function(pointerEvent)
+            Player.LocalRotation = Rotation(0, pointerEvent.DX * 0.01, 0) * Player.LocalRotation
+            Player.Head.LocalRotation = Rotation(-pointerEvent.DY * 0.01, 0, 0) * Player.Head.LocalRotation
+            local dpad = controls.DirectionalPadValues
+            Player.Motion = (Player.Forward * dpad.Y + Player.Right * dpad.X) * playerSpeed
+        end
+
+    - title: "Miscellaneous"
+
+    - subtitle: "Plane controls"
+
+    - text: |
+        Here's an implementation of simple plane controls.
+
+    - code: |
+        -- constants
+        local ON_PRESS_ACCELERATION = 100
+        local ON_RELEASE_ACCELERATION = -10
+        local MIN_SPEED = 0
+        local MAX_SPEED = 300
+        local TILT_SPEED = 1
+        local ROLL_SPEED = 1
+        local YAW_SPEED = 1
+        local WING_LENGTH = 30
+        local DISTANCE_BETWEEN_WING_TIPS = WING_LENGTH * 2
+
+        -- variables
+        acceleration = 0
+        speed = MIN_SPEED -- default speed
+        dpadX = 0
+        dpadY = 0
+
+        -- Client.OnStart is the first function to be called when the world is launched, on each user's device.
+        Client.OnStart = function()
+            -- assuming there's an object named "plane" in the world
+            plane = World:FindFirst(function(o) return o.Name == "plane" end)
+            if plane == nil then
+                error("plane not found")
+            end
+
+            -- if not, we create one:
+            plane.Physics = PhysicsMode.Dynamic
+            plane.Position.Y = 50
+            World:AddChild(plane)
+
+            -- adding wing tips empty objects to calculate height difference between them
+            -- and use it as a simple way to affect the yaw of the plane.
+            -- (prefering arcade / simple physics over realistism)
+            leftWingTip = Object()
+            leftWingTip:SetParent(plane)
+            leftWingTip.LocalPosition:Set(-WING_LENGTH, 0, 0)
+            rightWingTip = Object()
+            rightWingTip:SetParent(plane)
+            rightWingTip.LocalPosition:Set(WING_LENGTH, 0, 0)
+
+            Camera.Behavior = { 	
+                positionTarget = plane, 
+                positionTargetBackoffDistance = 100, 
+                positionTargetMinBackoffDistance = 20, 
+                positionTargetMaxBackoffDistance = 250,
+                rotationTarget = plane,
+                rotationTargetOffset = Rotation(math.rad(20), 0, 0),
+                rigidity = 0.2,
+                collidesWithGroups = nil,
+            }
+        end
+
+        Client.Action1 = function()
+            acceleration = ON_PRESS_ACCELERATION
+        end
+
+        Client.Action1Release = function()
+            acceleration = ON_RELEASE_ACCELERATION
+        end
+
+        Client.Tick = function(dt)
+            speed = math.min(MAX_SPEED, math.max(MIN_SPEED, speed + acceleration * dt))
+
+            if dpadX ~= 0 or dpadY ~= 0 then
+                plane.Rotation = plane.Rotation * Rotation(dpadY * dt * TILT_SPEED, 0, -dpadX * dt * ROLL_SPEED)
+            end
+
+            -- compare height difference between wing tips to calculate yaw
+            local yaw = (leftWingTip.Position.Y - rightWingTip.Position.Y) / DISTANCE_BETWEEN_WING_TIPS
+            local yawSpeed = yaw * dt * YAW_SPEED
+            plane.Rotation = Rotation(0, yaw * dt * YAW_SPEED, 0) * plane.Rotation
+
+            plane.Velocity = plane.Forward * speed
+        end
+
+        Client.DirectionalPad = function(x, y)
+            dpadX = x dpadY = y
+        end
+
+

@@ -1,0 +1,20 @@
+keywords: ["blip", "lua", "luau", "players", "multiplayer", "user", "character", "avatar", "game", "online"]
+type: "Players"
+description: Players is an array of Players, it contains all players currently connected in the World.
+blocks:
+  - text: |
+      Players is a [array] containing all [Player]s currently connected to the [World].
+
+      Player indexes in [Players] are arbitrary, and may change as players join and leave.
+
+  - code: |
+      -- print information about all players:
+      for _, player in Players do
+        print(player.Username, player.UserID, player.ConnectionID)
+      end
+
+      -- another way to iterate:
+      for i = 1, #Players do
+        local player = Players[i]
+        print(player.Username, player.UserID, player.ConnectionID)
+      end

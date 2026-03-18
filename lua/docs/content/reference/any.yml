@@ -1,0 +1,5 @@
+keywords: ["blip", "lua", "luau", "any", "type", "dynamic", "variable", "generic", "programming", "type system"]
+type: "any"
+basic-type: true
+description: |
+    [any] is not a Lua type. When you see it in the documentation it only means any type is accepted.

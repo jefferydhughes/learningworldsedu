@@ -1,0 +1,65 @@
+keywords: ["blip", "lua", "luau", "fog", "atmosphere", "distance", "visibility", "environment", "rendering", "effect"]
+type: "Fog"
+description: |
+    Fog is a shortcut to [Client].[Fog].
+    
+    Fog gives control over distance fog settings.
+
+properties:
+    - name: "On"
+      type: "boolean"
+      description: "Enables or disables Fog."
+      samples:
+        - code: Fog.On = true
+        - code: Fog.On = false
+        - code: | 
+            -- toggles fog
+            Fog.On = not Fog.On
+    
+    - name: "Distance"
+      type: "number"
+      description: |
+          Sets [Fog].[Near](#property-near) while maintaining offset between [Fog].[Near](#property-near) & [Fog].[Far](#property-far)
+      samples:
+        - code: Fog.Distance = 100
+    
+    - name: "Near"
+      type: "number"
+      description: |
+          Distance at which Fog starts, in world units. Default value is `200`.
+          
+          Anything closer than `Fog.Near` is not affected by the fog. Anything between `Fog.Near` and `Fog.Far` is progressively colored by fog.
+      samples:
+        - code: Fog.Near = 50
+    
+    - name: "Far"
+      type: "number"
+      description: |
+          Distance at which Fog ends, in world units. Default value is `400`.
+
+          Anything between `Fog.Near` and `Fog.Far` is progressively colored by fog, up to maximum fog opacity at `Fog.Far` and beyond.
+      samples:
+        - code: Fog.Far = 100
+        - code: |
+            -- both near and far can be set at once this way
+            Fog.Near, Fog.Far = 50, 100
+    
+    - name: "Color"
+      type: "Color"
+      description: |
+          Color of the fog, default is RGB `(0, 95, 139)`.
+
+    - name: "LightAbsorption"
+      type: "number"
+      description: |
+          Fog absorption factor regarding light blocks and light objects, default is `0.4`.
+
+          0.0 ➡️ the color can 100% be seen through the fog.
+          1.0 ➡️ the color is totally absorbed, like any other block.
+      samples:
+        - code: Fog.LightAbsorption = 0.1
+
+    - name: "Layers"
+      type: "table"
+      description: |
+          Integer or table of integers between 1 and 8. Cameras only render the fog if it corresponds to their layers.

@@ -1,0 +1,232 @@
+import org.apache.tools.ant.taskdefs.condition.Os
+
+plugins {
+    id 'com.android.application'
+    // Add the Google services Gradle plugin
+    // Needed for Push Notifications.
+    id 'com.google.gms.google-services'
+    // JSON serialization
+    id 'org.jetbrains.kotlin.plugin.serialization'
+    // Add the Crashlytics Gradle plugin
+    id 'com.google.firebase.crashlytics'
+}
+
+// Parse .env variables (once per gradle sync)
+def envFile = rootProject.file("../../.env")
+def env = [:]
+if (envFile.exists()) {
+    envFile.eachLine { line ->
+        //println "LINE: $line"
+        if (line && !line.startsWith("#")) {
+            def (key, value) = line.split("=", 2)
+            env[key.trim()] = value.trim()
+        }
+    }
+}
+
+// Detect OS (invariant across variants)
+def hostOs = ""
+if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+    hostOs = "windows"
+} else if (Os.isFamily(Os.FAMILY_MAC)) {
+    hostOs = "macos"
+} else if (Os.isFamily(Os.FAMILY_UNIX)) {
+    hostOs = "linux"
+}
+
+// Detect native architecture
+def hostArch = System.getProperty("os.arch")
+if (hostArch == "aarch64") {
+    hostArch = "arm64"
+} else if (hostArch == "amd64") {
+    hostArch = "x86_64"
+}
+
+android {
+    signingConfigs {
+        release {
+            storeFile file('../../pcubes-keystore.jks')
+            storePassword findProperty("storePassword") // it is in ~/.gradle/gradle.properties
+            keyAlias 'release'
+            keyPassword findProperty("keyPassword") // it is in ~/.gradle/gradle.properties
+        }
+        debug {
+            storeFile file('../voxowl_debug.jks')
+            storePassword 'elleestoulapoulette'
+            keyAlias 'debug'
+            keyPassword 'elleestoulapoulette'
+        }
+    }
+    compileSdk = 36
+    buildToolsVersion = "36.0.0"
+    defaultConfig {
+        applicationId "com.voxowl.blip"
+        minSdk 26
+        targetSdk 35
+        versionCode 237 // increment this for each upload through Google Play Console
+        versionName "0.1.26"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        externalNativeBuild {
+            cmake {
+                cppFlags "-std=c++17"
+
+                // Forward .env variables to cmake, prefixed w/ "ENVVAR_"
+                arguments += env.collect { k, v -> "-DENVVAR_${k}=${v}" }
+            }
+        }
+    }
+    buildTypes {
+        release {
+            debuggable false
+            minifyEnabled false
+            shrinkResources = false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig = signingConfigs.release
+            firebaseCrashlytics {
+                // Enable processing and uploading of native symbols to Firebase servers.
+                // By default, this is disabled to improve build speeds.
+                // This flag must be enabled to see properly-symbolicated native
+                // stack traces in the Crashlytics dashboard.
+                nativeSymbolUploadEnabled = true
+            }
+        }
+        debug {
+            // debuggable = true
+            // Enables code shrinking, obfuscation, and optimization for only
+            // your project's release build type. Make sure to use a build
+            // variant with `debuggable false`.
+            // minifyEnabled = false
+            // Enables resource shrinking, which is performed by the Android Gradle plugin.
+            shrinkResources = false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            externalNativeBuild {
+                cmake {
+                    cppFlags += "-DDEBUG=1"
+                    cFlags += "-DDEBUG=1"
+                }
+            }
+            signingConfig = signingConfigs.debug
+        }
+    }
+    externalNativeBuild {
+        cmake {
+            path "src/main/cpp/CMakeLists.txt"
+            version = "3.31.6"
+        }
+    }
+    namespace = 'com.voxowl.blip'
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
+    }
+    ndkVersion = '28.2.13676358'
+    buildFeatures {
+        buildConfig = true
+    }
+    packaging {
+        resources.excludes.add("META-INF/*")
+    }
+}
+
+androidComponents {
+    onVariants(selector().all()) { variant ->
+        def variantName = variant.name
+
+        // Make sure dependencies are up to date (deptool)
+        def deptoolCommand = ["./deptool_${hostOs}_${hostArch}", "autoconfig", "android"]
+        if (hostOs == 'windows') {
+            deptoolCommand[0] = "deptool_${hostOs}_${hostArch}.exe"
+            deptoolCommand = ['cmd', '/c'] + deptoolCommand
+        }
+        tasks.register("deptoolAutoconfig_${variantName}", Exec) {
+            workingDir("../../../deps/deptool/cmd")
+            commandLine(deptoolCommand)
+        }
+
+        // Update hashes for Luau modules
+        def hashCommand = ["./deps/hasher/${hostOs}/${hostArch}/hasher"]
+        if (hostOs == 'windows') {
+            hashCommand[0] = "deps\\hasher\\${hostOs}\\${hostArch}\\hasher.exe"
+            hashCommand = ['cmd', '/c'] + hashCommand
+        }
+        tasks.register("hashModules_${variantName}", Exec) {
+            workingDir("../../..")
+            commandLine(hashCommand)
+        }
+
+        // Update asset bundle
+        tasks.register("cleanAssets_${variantName}", Delete) {
+            delete("./src/main/assets")
+        }
+
+        tasks.register("copyAssets_${variantName}", Copy) {
+            from("./../../../bundle")
+            into("./src/main/assets")
+            dependsOn "cleanAssets_${variantName}"
+        }
+
+        tasks.register("copyI18nAssets_${variantName}", Copy) {
+            from("./../../../i18n")
+            into("./src/main/assets/i18n")
+            dependsOn "copyAssets_${variantName}"
+        }
+
+        tasks.register("copyAssets_ossLuaModules_${variantName}", Copy) {
+            from("./../../../lua/modules")
+            into("./src/main/assets/modules")
+            dependsOn "copyI18nAssets_${variantName}"
+        }
+
+        tasks.register("cleanShaders_${variantName}", Delete) {
+            delete("./src/main/assets/shaders/dx9")
+            delete("./src/main/assets/shaders/dx11")
+            delete("./src/main/assets/shaders/glsl")
+            delete("./src/main/assets/shaders/metal")
+            dependsOn "copyAssets_ossLuaModules_${variantName}"
+        }
+
+        // Wire to preBuild (deferred, as preBuild tasks are created later)
+        project.afterEvaluate {
+            tasks.named("pre${variantName.capitalize()}Build").configure {
+                dependsOn "cleanShaders_${variantName}"
+                dependsOn "hashModules_${variantName}"
+                dependsOn "deptoolAutoconfig_${variantName}"
+            }
+        }
+    }
+}
+
+afterEvaluate {
+    tasks.matching { it.name == 'bundleRelease' || it.name == 'assembleRelease' }.configureEach {
+        finalizedBy "uploadCrashlyticsSymbolFileRelease"
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation("androidx.appcompat:appcompat:1.7.1")
+    implementation("androidx.constraintlayout:constraintlayout:2.2.1")
+    implementation("com.android.installreferrer:installreferrer:2.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
+    // --- Import the Firebase BoM
+    // when using the BoM, we don't need to specify the version of each dependency
+    implementation platform('com.google.firebase:firebase-bom:34.0.0')
+    implementation 'com.google.firebase:firebase-messaging'
+    implementation("com.google.firebase:firebase-crashlytics-ndk")
+    implementation("com.google.firebase:firebase-analytics")
+
+    // ---
+    implementation "androidx.test:monitor:1.8.0"
+    implementation "androidx.test.ext:junit-ktx:1.3.0"
+    testImplementation "org.junit.jupiter:junit-jupiter:5.13.4"
+    androidTestImplementation "org.junit.jupiter:junit-jupiter:5.13.4"
+    // Credential Manager (for Passkey)
+    implementation "androidx.credentials:credentials:1.5.0"
+    // Google Play Services Auth - provides the credential provider implementation
+    implementation "androidx.credentials:credentials-play-services-auth:1.5.0"
+}
+
+// Report use of deprecated APIs
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+}

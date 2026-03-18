@@ -1,0 +1,28 @@
+keywords: ["blip", "lua", "luau", "time", "clock", "timestamp", "date", "system", "calendar", "measurement"]
+type: "Time"
+description: |
+    Time contains time utility functions.
+
+functions:
+  - name: "Unix"
+    description: |
+      Returns elapsed seconds since January 1, 1970 UTC.
+    return:
+      - type: "integer"
+    samples:
+        - code: |
+            Client.Action2 = function()
+              print("time:", Time.Unix(), "s")
+            end
+
+  - name: "UnixMilli"
+    description: |
+      Returns elapsed milliseconds since January 1, 1970 UTC.
+    return:
+      - type: "integer"
+    samples:
+        - code: |
+            Client.Action2 = function()
+              print("time:", Time.UnixMilli(), "ms")
+            end
+

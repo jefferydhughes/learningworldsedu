@@ -1,0 +1,117 @@
+keywords: ["blip", "lua", "luau", "box", "geometry", "bounds", "collision", "volume", "region", "3d"]
+type: "Box"
+description: |
+    A Box represents a volume axis-aligned to a given space : it is defined with only two [Number3], a minimum and a maximum, which represent the extents of the box along the axes of that space.
+
+    For example, a [Shape].[BoundingBox](/reference/shape#property-boundingbox) is axis-aligned to the model space of that shape, pertaining to its blocks.
+    However, an [Object].[CollisionBox](/reference/object#property-collisionbox) is axis-aligned to the world space of the scene, like most physics-related boxes.
+
+    When using or creating an axis-aligned Box, be mindful of what space it is relevant to.
+constructors: 
+  - description: "Creates a default Box with no volume, or with given minimum and maximum points."
+    argument-sets:
+      -
+      -
+        - name: "min"
+          type: "Number3"
+        - name: "max"
+          type: "Number3"
+    samples:
+      - code: |
+          -- creates a box with both min & max = {0,0,0}
+          local box = Box()
+
+          box = Box({0,0,0}, {10,10,10})
+
+properties:
+  - name: "Min"
+    type: "Number3"
+    description: |
+        [This] minimum point representing the lower extent along the axes.
+
+  - name: "Max"
+    type: "Number3"
+    description: |
+        [This] maximum point representing the upper extent along the axes.
+
+  - name: "Width"
+    type: "number"
+    description: |
+        Width of the box, shortcut to `box.Size.X`.
+
+  - name: "Height"
+    type: "number"
+    description: |
+        Height of the box, shortcut to `box.Size.Y`.
+  
+  - name: "Depth"
+    type: "number"
+    description: |
+        Depth of the box, shortcut to `box.Size.Z`.
+
+  - name: "Size"
+    type: "Number3"
+    description: |
+        Size of the box from its minimum point. This automatically sets [This].[Max](/reference/box#property-max).
+
+        Can be set to a `number` for a uniform size.
+
+  - name: "Center"
+    type: "Number3"
+    read-only: true
+    description: |
+        [This] geometric center point.
+    
+functions:
+  - name: "Copy"
+    return:
+        - type: "Box"
+    description: |
+        Returns a copy of the [Box].
+
+  - name: "Fit"
+    return:
+        - type: "Box"
+    arguments:
+      - name: "target"
+        type: "Object"
+      - name: "config"
+        type: "table"
+        optional: true
+    description: |
+        Sets the box to a bounding box fitting the given target's model, and return it.
+
+        Config table can contain any of the following: `{ recurse=boolean, localBox=boolean }`,
+        - `recurse`: the box will also fit all of target's descendants models. Default is `false`.
+        - `localBox`: result box will be in `target`'s parent local space. Default is `false`, returning a box in world space.
+
+  - name: "Merge"
+    return:
+        - type: "Box"
+    arguments:
+      - name: "b"
+        type: "Box"
+    description: |
+        Sets the box to the combination of both boxes, and return it.
+  
+  - name: "Cast"
+    arguments:
+      - name: "direction"
+        type: "Number3"
+      - name: "maxDistance"
+        type: "number"
+        optional: true
+      - name: "filterIn"
+        type: "CollisionGroups"
+        optional: true
+      - name: "filterOut"
+        type: "Object"
+        optional: true
+    return:
+        - type: "Impact"
+    description: |
+        Cast the [Box] along the given direction vector until max distance is reached, if provided.
+
+        The box will collide with any objects matching the `filterIn` collision groups. If `nil` is provided, the ray collides with all [CollisionGroups] by default.
+
+        Additionally, an object can be provided as `filterOut` to exclude it as a potential result. However, it is generally a best practice to filter using collision groups.

@@ -1,0 +1,20 @@
+{
+    "APIHost": "https://api.cu.bzh:443",
+    "GameServerTag": "f809f0cb",
+    "Version": "0.1.26",
+    "Commit": "",
+    "Deps": {
+        "libluau": {
+            "version": "0.665"
+        },
+        "libpng": {
+            "version": "1.6.48",
+            "use_source": [
+                "windows"
+            ]
+        },
+        "libjolt": {
+            "version": "5.3.0"
+        }
+    }
+}

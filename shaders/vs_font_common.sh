@@ -1,0 +1,31 @@
+$input a_position, a_color0, a_texcoord0
+$output v_color0, v_texcoord0, v_texcoord1
+#if FONT_VARIANT_MRT_TRANSPARENCY
+	#define v_clipZ v_texcoord1.x
+#else
+	#define v_linearDepth v_texcoord1.x
+	#define v_clipZ v_texcoord1.y
+#endif
+
+#include "./include/bgfx.sh"
+#include "./include/config.sh"
+
+void main() {
+	vec4 model = vec4(a_position.xy, 0.0, 1.0);
+	vec4 clip = mul(u_modelViewProj, model);
+#if FONT_VARIANT_MRT_LINEAR_DEPTH
+	vec4 view = mul(u_modelView, model);
+#endif
+
+	gl_Position = clip;
+	v_texcoord0 = a_texcoord0;
+	v_color0 = a_color0;
+#if FONT_VARIANT_MRT_TRANSPARENCY
+	v_clipZ = clip.z;
+#else
+#if FONT_VARIANT_MRT_LINEAR_DEPTH
+	v_linearDepth = view.z;
+#endif
+	v_clipZ = clip.z;
+#endif // FONT_VARIANT_MRT_TRANSPARENCY
+}

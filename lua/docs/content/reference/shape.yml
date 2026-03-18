@@ -1,0 +1,291 @@
+keywords: ["blip", "lua", "luau", "shape", "geometry", "mesh", "3d", "model", "blocks", "rendering"]
+type: "Shape"
+extends: "Object"
+description: |
+  A [Shape] is an [Object] that carries a voxel model made of [Block]s.
+
+  It introduces an additional coordinate system called model space i.e. relative to model origin.
+  Any point can be expressed in model space. If the point is expressed with integers, then it may represent a [Block] coordinates.
+
+  Note that if the [Shape.Pivot](#property-pivot) is set to zero, then model space and local space become equivalent.
+
+constructors: 
+  - description: |
+        Creates a [Shape] which model can be empty, loaded from an imported [Item] (see [Items]), or copied from an existing [Shape] or [MutableShape].
+
+        The optional [table] parameter can be used to override default configuration: `{recurse = false, bakedLight = false}`.
+        - `recurse` (false by default) will copy and replicate the full shape hierarchy, including all children objects.
+        - `bakedLight` (false by default) determines whether or not the shape should be loaded with baked lighting.  If `true`, it will use the baked lighting information saved with the original item, or compute it from scratch if there was none. Any subsequent changes to the shape's blocks will automatically maintain its baked lighting.
+
+        The first step after creating a shape is usually to add it to the world using [SetParent](#functions-setparent) or [AddChild](#functions-addchild), then place it by setting its [Position](#property-position).
+    argument-sets:
+      -
+        - name: "config"
+          type: "table"
+          optional: true
+      -
+        - name: "item"
+          type: "Item"
+        - name: "config"
+          type: "table"
+          optional: true
+      -
+        - name: "copiedShape"
+          type: "Shape"
+        - name: "config"
+          type: "table"
+          optional: true
+      -
+        - name: "copiedMutableShape"
+          type: "MutableShape"
+        - name: "config"
+          type: "table"
+          optional: true
+
+    samples:
+      - code: |
+          -- create shape from items declared in the [Items] table
+          local myShape = Shape(Items.someuser.someitem)
+
+          -- add to the world and place it
+          World:AddChild(myShape)
+          myShape.Position = { 0, 5, 15 }
+      - 
+        code: |
+          -- create a full copy of a composite shape, including all children objects
+          local myShape = Shape(myCompositeShape, {includeChildren = true})
+
+properties:
+
+    - name: "Palette"
+      type: "array"
+      description: |
+          Palette is an [array] of [BlockProperties], with each entry corresponding to a style of block used by the [This]'s model. Each of the [This]'s block use a palette index, indicating which entry to use to draw that block.
+
+          If [This].[Palette] is set, the shape will start using the new palette in place. Each of its block's palette index will then point to the [BlockProperties] of that new palette. This can be used to share a single palette between multiple shapes, for example to create effects by changing color on a whole group of shapes at once.
+          Note that if you would like to keep the original colors of the shape while assigning another palette, you should use the [Palette](/reference/palette).[Merge](/reference/palette#functions-merge) function instead.
+
+    - name: "Pivot"
+      type: "Number3"
+      description: |
+          [This]'s pivot is a local point that acts as a reference for its transformations:
+          - translation is applied from its parent's pivot to its own pivot
+          - rotation is applied around the pivot
+
+          It is set by default to [This]'s geometric center, which is equal to `myShape.BoundingBox.Min + myShape.BoundingBox.Center`.
+
+          You can override it with any point, even outside of the [This]'s bounding box, as a way to modify how transformations are applied.
+          Note that setting the pivot to zero effectively means you are using the [This]'s model origin as reference point for transformations.
+      samples:
+        - code: |
+            -- set it to any arbitrary point
+            myShape.Pivot = { 2.3, 5.0, 1.5 }
+            -- set it to a specific block, it will use block's center
+            myShape.Pivot = myShape:GetBlock(1, 1, 1)
+            -- doing this resets pivot to its default value
+            myShape.Pivot = myShape.BoundingBox.Min + myShape.BoundingBox.Center
+
+    - name: "Depth"
+      read-only: true
+      type: "number"
+      description: "Returns [This]'s depth, expressed in model space (the space where blocks are placed). Shortcut to [This].[BoundingBox](#property-boundingbox).[Size](/reference/box#property-size).[Z](/reference/number3#property-z)."
+
+    - name: "Height"
+      read-only: true
+      type: "number"
+      description: "Returns [This]'s height, expressed in model space (the space where blocks are placed). Shortcut to [This].[BoundingBox](#property-boundingbox).[Size](/reference/box#property-size).[Y](/reference/number3#property-y)."
+
+    - name: "Width"
+      read-only: true
+      type: "number"
+      description: "Returns [This]'s width, expressed in model space (the space where blocks are placed). Shortcut to [This].[BoundingBox](#property-boundingbox).[Size](/reference/box#property-size).[X](/reference/number3#property-x)."
+    
+    - name: "Size"
+      read-only: true
+      type: "Number3"
+      description: "Returns [This]'s model bounding box size, expressed in model space (the space where blocks are placed). Shortcut to [This].[BoundingBox](#property-boundingbox).[Size](/reference/box#property-size)."
+
+    - name: "BoundingBox"
+      read-only: true
+      type: Box
+      description: |
+          The bounding box represents the bounds of the [This] in model space (the space where blocks are placed).
+
+          It is the smallest axis-aligned box that encompasses all of [This]'s blocks.
+
+          If you are looking for the bounding box in a different space, see [This].[ComputeLocalBoundingBox](#functions-computelocalboundingbox) and [This].[ComputeWorldBoundingBox](#functions-computeworldboundingbox).
+
+    - name: "Min"
+      read-only: true
+      type: Number3
+      description: |
+          The minimum point of the [This]'s bounding box. Shortcut to [This].[BoundingBox](#property-boundingbox).[Min](/reference/box#property-min).
+
+    - name: "Center"
+      read-only: true
+      type: Number3
+      description: |
+          The center of the [This]'s bounding box. Shortcut to [This].[BoundingBox](#property-boundingbox).[Center](/reference/box#property-center).
+
+    - name: "Max"
+      read-only: true
+      type: Number3
+      description: |
+          The maximum point of the [This]'s bounding box. Shortcut to [This].[BoundingBox](#property-boundingbox).[Max](/reference/box#property-max).
+
+    - name: "BlocksCount"
+      read-only: true
+      type: integer
+      description: |
+          The number of blocks in [This]'s model.
+
+    - name: "Shadow"
+      type: boolean
+      description: |
+          Whether or not the shape should cast shadows onto other lit objects. [Light](/reference/light) objects set as shadow casters will affect all shapes in matching layers (see [Light](/reference/light).[CastsShadows](/reference/light#property-castsshadows)).
+
+          Note that whether or not the shape is affected by lights and shadows from other objects depends on the separate property [This].[IsUnlit](#property-isunlit).
+
+    - name: "Layers"
+      type: "table"
+      description: |
+          Integer or table of integers between 1 and 12. Cameras only render shapes corresponding to their layers, and lights only affect shapes in matching layers.
+
+    - name: "IsUnlit"
+      type: "boolean"
+      description: |
+          Whether or not the shape should ignore scene lighting, `false` by default. If `true`, the shape won't be affected by any light and shadows from other objects.
+
+    - name: "InnerTransparentFaces"
+      type: "boolean"
+      description: |
+          Whether or not inner faces between blocks of different colors should be drawn for this shape, `true` by default.
+
+    - name: "ItemName"
+      type: "string"
+      description: |
+          Original item name of this shape. If it was created programmatically, item name is `nil`.
+    
+    - name: "DrawMode"
+      type: "table"
+      description: |
+        Enable and configure draw modes using this property. Setting this to `nil` disables all draw modes.
+
+        Currently, one draw mode is supported: `{ color=<Color or table of options> }`,
+        - `color` as a [Color](/reference/color), applied multiplicatively to the whole shape. Alternatively, it can be set to a table of options (see below).
+
+        Color options are,
+        - `multiplicative` as a [Color](/reference/color), applied multiplicatively to the whole shape.
+        - `additive` as a [Color](/reference/color), applied additively to the whole shape.
+
+        The additive and multiplicative colors are a shortcut to modify shape colors as a whole, but it could also be done by adding or multiplying each colors of the shape palette.
+
+        All these options can be set at runtime or animated individually.
+
+functions:
+    - name: "GetBlock"
+      description: |
+          Gets a [Block] from the [Shape].
+          Returned [Block] is read-only because [Shape] is immutable, unlike [MutableShape].
+          Returns [nil] if there is no [Block] at those coordinates (i. e. if it's "air").
+
+      argument-sets: 
+        -
+          - name: "X"
+            type: "number"
+          - name: "Y"
+            type: "number"
+          - name: "Z"
+            type: "number"
+        -
+          - name: coordinates
+            type: "Number3"
+      return: 
+        - type: "Block"
+
+    - name: "BlockToWorld"
+      description: "Converts given [Block] coordinates or [Number3] from model space to world space."
+      argument-sets: 
+        -
+          - name: "b"
+            type: "Block"
+        -
+          - name: "n"
+            type: "Number3"
+      return:
+        - type: "Number3"
+
+    - name: "BlockToLocal"
+      description: "Converts given [Block] coordinates or [Number3] from model space to local space."
+      argument-sets: 
+        -
+          - name: "b"
+            type: "Block"
+        -
+          - name: "n"
+            type: "Number3"
+      return:
+        - type: "Number3"
+
+    - name: "WorldToBlock"
+      description: "Converts given [Number3] from world space to model space."
+      arguments: 
+        - name: "n"
+          type: "Number3"
+      return:
+        - type: "Number3"
+
+    - name: "LocalToBlock"
+      description: "Converts given [Number3] from local space to model space."
+      arguments: 
+        - name: "n"
+          type: "Number3"
+      return:
+        - type: "Number3"
+
+    - name: "ComputeLocalBoundingBox"
+      description: |
+        Computes and returns the smallest axis-aligned box that encompasses all of [This]'s blocks, in local space (i.e. expressed from [This.Pivot](#property-pivot)).
+      return:
+        - type: "Box"
+
+    - name: "ComputeWorldBoundingBox"
+      description: |
+        Computes and returns the smallest axis-aligned box that encompasses all of [This]'s blocks, in world space (i.e. expressed from the origin of the world, which corresponds to the [World] object).
+      return:
+        - type: "Box"
+
+    - name: "ComputeBakedLight"
+      description: |
+        Computes the shape baked lighting. It is a combination of a white ambient light and all blocks that were set as light sources. Other shapes entering inside this shape's bounding box will be affected by its baked lighting.
+        
+        This is an efficient way of applying lighting to shapes without affecting performance. The baked lighting of a shape is cached to speed up subsequent loads.
+        
+        Once a shape has baked lighting, it will be automatically maintained when changing its blocks.
+        
+        However, directly changing the transparency or light properties of shape's [Palette] entries of _existing_ blocks will not be reflected on the shape immediately, and will require another call to this function.
+                
+        You may want to call this function only if:
+        - activating baked lighting on a shape for the first time
+        - setting light property i.e. `shape.Palette[i].Light = true/false` of _existing_ shape blocks
+        - setting transparency i.e. `shape.Palette[i].Color.A = newValue` of _existing_ shape blocks
+        
+        You _do not_ need to call this function if:
+        - ANY blocks, including light and transparent blocks, are added/removed at runtime
+        - setting light or transparent property of an unused palette entry first, before adding blocks using that entry
+      samples:
+        - code: |
+            Client.OnStart = function()
+              Map.Palette[1].Light = true
+  
+              -- refresh baked lighting for existing blocks
+              Map:ComputeBakedLight(function() print("Map baked lighting done!") end)
+            end
+
+    - name: "ClearBakedLight"
+      description: |
+        Removes the shape baked lighting and frees up any memory used. It could be an optimization step for scenes pooling a large amount of shapes.
+
+      arguments:
+        - name: "callback"
+          type: "function"

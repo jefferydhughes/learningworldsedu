@@ -1,0 +1,65 @@
+keywords: ["blip", "lua", "luau", "dev", "development", "debug", "testing", "tools", "logging", "performance"]
+type: "Dev"
+description: "Dev contains handy functions and attributes for developers."
+blocks:
+  - text: |
+      Dev contains handy functions and attributes for developers.
+
+functions:
+    - name: "SetGameThumbnail"
+      description: |
+          Takes a screenshot and sets it as a thumbnail for the game.
+      samples:
+          - code: |
+              Client.Action3 = function()
+                  Dev:SetGameThumbnail()
+              end
+
+properties:
+
+    - name: "DisplayBoxes"
+      type: "boolean"
+      description: |
+          Displays all geometry objects ([Shape], [MutableShape] or [Mesh]) bounding box when set to `true`, `false` by default.
+
+          It can be set to a geometry object or table of geometry objects to display the bounding boxes of these individual objects. Set the field back to `false` to turn it all off.
+      samples:
+          - code: |
+              -- display the bounding box of a single shape
+              Dev.DisplayBoxes = myShape
+
+              -- display the bounding box of a collection of geometry objects
+              Dev.DisplayBoxes = { myShape1, myMesh, myShape2 }
+
+              -- turn everything OFF
+              Dev.DisplayBoxes = false
+
+    - name: "DisplayColliders"
+      type: "boolean"
+      description: |
+          Displays collision boxes when set to `true`, `false` by default.
+
+          It can be set to an object or table of objects to display the bounding boxes of these individual objects. Set the field back to `false` to turn it all off.
+      samples:
+          - code: |
+              -- display the collider of a single object
+              Dev.DisplayColliders = myObject
+
+              -- display the collider of a collection of objects
+              Dev.DisplayColliders = { myObject1, myObject2 }
+
+              -- turn everything OFF
+              Dev.DisplayColliders = false
+    
+    - name: "DisplayFPS"
+      type: "boolean"
+      description: |
+          Displays a framerate counter when set to `true`, `false` by default.
+      samples:
+          - code: |
+              Dev.DisplayFPS = true
+
+    - name: "CanRunCommands"
+      type: "boolean"
+      description: |
+          True if the world is launched in developer mode and the local player is its author.

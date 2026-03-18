@@ -1,0 +1,105 @@
+keywords: ["blip", "lua", "luau", "light", "lighting", "illumination", "shadow", "brightness", "directional", "point"]
+type: "Light"
+extends: "Object"
+description: |
+    A `Light` is an object that can be placed in the scene to act as a light source.
+
+    There are currently 3 types of light: point, spot, and directional.
+
+    A code example of `Light`'s various fields can be found in the world `Lights Tests`.
+
+    ⚠️ Currently, only directional lights ([This].[Type](/reference/light#property-type)) have shadow-casting capability.
+
+constructors: 
+  - description: "Creates a Light with default properties."
+    samples:
+      - code: |
+          local l = Light()
+
+          -- change light properties
+          l.Radius = 50
+          l.Color = Color(1.0, 1.0, 0.5)
+
+          -- use it as a normal object in the scene
+          l:SetParent(World)
+          l.Position = { x, y, z }
+
+properties:
+    - name: "Type"
+      type: "LightType"
+      description: |
+          The light type can be one of `LightType.Point` (by default), `LightType.Spot`, or `LightType.Directional`.
+
+          Note that it can be changed at any time.
+
+    - name: "Color"
+      type: "Color"
+      description: |
+          Color of the light, white by default.
+
+    - name: "Range"
+      type: "number"
+      description: |
+          Range of the light, `30` by default. Has no effect for directional lights.
+
+    - name: "Radius"
+      type: "number"
+      description: |
+          Radius of a point light. Alias to [This].[Range] for convenience.
+
+    - name: "Hardness"
+      type: "number"
+      description: |
+          The hardness of a light source represents the core intensity of the emitted light.
+
+          At the minimum value of `0`, the lit area will appear diffuse with smooth edges. At its maximum value of `1`, it will appear bright with clear sharp edges.
+
+          Default hardness is `0.5`.
+
+    - name: "Angle"
+      type: "number"
+      description: |
+          Angle of the cone of a spot light, default is `0.7` radians. Has no effect on other light types.
+
+    - name: "Intensity"
+      type: "number"
+      description: |
+          Intensity of the light, default is `1.0`. A value between `0.0` and `1.0` dims illumination of the scene, whereas values higher than `1.0` adds light color over the scene.
+
+          This can be set on global `Light` object to control all lights' intensity at once, or on a light instance to override its individual intensity.
+
+    - name: "Ambient"
+      type: "Ambient"
+      description: |
+          A collection of general lighting and color properties. This can only be accessed on global `Light` object.
+
+    - name: "On"
+      type: "boolean"
+      description: |
+          Toggles the light source on and off.
+
+    - name: "CastsShadows"
+      type: "boolean"
+      description: |
+          Enables the light source as a shadow caster. Every shadow-enabled object in matching layers will cast a shadow onto other lit objects.
+          
+          Blip will automatically limit the number of simultaneous light shadow casters in a scene based on each player's device.
+
+          ⚠️ Currently, only directional lights ([This].[Type](/reference/light#property-type)) have shadow-casting capability.
+
+    - name: "PriorityGroup"
+      type: "integer"
+      description: |
+          `PriorityGroup` is a way to create light groups in order of importance from `0` to `255` (default group is `128`).
+
+          If your world is played on a mobile or lower-end device, the maximum number of simultaneaous lights on screen may vary based on hardware capabilities.
+
+          If you want to ensure a smooth gameplay on your world for all users, a good practice is to prioritize all gameplay-essential lights.
+          For example, if your game features a light torch that the player carries, you could place it in `PriorityGroup` `0` to ensure it is always rendered first and leave other lights that are part of the environment in a lower group.
+
+          You can assign as many lights as you want per group, however only groups order is garanteed, lights within a given group are rendered unordered.
+
+    - name: "Layers"
+      type: "table"
+      description: |
+          Integer or table of integers between 1 and 12. The light will affect other objects in matching layers.

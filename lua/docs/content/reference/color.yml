@@ -1,0 +1,108 @@
+keywords: ["blip", "lua", "luau", "color", "rgb", "rgba", "hue", "saturation", "palette", "visual"]
+type: "Color"
+description: Represents a RGBA color (Red, Green, Blue, Alpha)
+
+constructors: 
+  - description: |
+      Creates a Color with given red, green, blue and (optional) alpha values.
+
+      Parameters can be between 0.0 and 1.0 or between 0 and 255.
+    arguments:
+    - name: "red"
+      type: "number"
+    - name: "green"
+      type: "number"
+    - name: "blue"
+      type: "number"
+    - name: "alpha"
+      type: "number"
+      optional: true
+    samples:
+        - code: |
+            local red = Color(255, 0, 0)
+            local alsoRed = Color(1.0, 0.0, 0.0)
+            local semiTransparentRed = Color(1.0, 0.0, 0.0, 0.5)
+
+properties:
+    - name: "Alpha"
+      type: "number"
+      description: "Color's alpha component."
+    - name: "A"
+      type: "number"
+      description: "Shortcut to [This].[Alpha](#property-alpha)."
+    - name: "Blue"
+      type: "number"
+      description: "Color's blue component."
+    - name: "B"
+      type: "number"
+      description: "Shortcut to [This].[Blue](#property-blue)."
+    - name: "Green"
+      type: "number"
+      description: "Color's green component."
+    - name: "G"
+      type: "number"
+      description: "Shortcut to [This].[Green](#property-green)."
+    - name: "Red"
+      type: "number"
+      description: "Color's red component."
+    - name: "R"
+      type: "number"
+      description: "Shortcut to [This].[Red](#property-red)."
+    - name: "Hue"
+      type: "number"
+      description: "Color's HSV hue component, in degrees. Value range from 0° to 360°."
+    - name: "H"
+      type: "number"
+      description: "Shortcut to [This].[Hue](#property-hue)."
+    - name: "Saturation"
+      type: "number"
+      description: "Color's HSV saturation component. Value range from `0.0` to `1.0`."
+    - name: "S"
+      type: "number"
+      description: "Shortcut to [This].[Saturation](#property-saturation)."
+    - name: "Value"
+      type: "number"
+      description: "Color's HSV value component. Value range from `0.0` to `1.0`."
+    - name: "V"
+      type: "number"
+      description: "Shortcut to [This].[Value](#property-value)."
+    - name: "Random"
+      type: "Color"
+      description: "This is a read-only getter of the global [This] object, returns a random opaque color."
+
+functions:
+  - name: "Lerp"
+    description: |
+        Sets this `Color` to the linear interpolation between two given `Color` at a given ratio.
+    arguments: 
+      - name: "from"
+        type: "Color"
+      - name: "to"
+        type: "Color"
+      - name: "ratio"
+        type: "number"
+  
+  - name: "Set"
+    description: |
+        Sets this `Color`'s components to the given values.
+    arguments:
+      - name: "r"
+        type: "number"
+      - name: "g"
+        type: "number"
+      - name: "b"
+        type: "number"
+      - name: "a"
+        type: "number"
+        optional: true
+      - name: "light"
+        type: "boolean"
+        optional: true
+
+  - name: "Clear"
+    description: |
+        Returns the clear color (R:0, G:0, B:0, A:0). This is a property of the global table, and should be called as `Color.Clear`.
+  
+  - name: "Copy"
+    description: |
+        Returns a new [This] instance with the same color.

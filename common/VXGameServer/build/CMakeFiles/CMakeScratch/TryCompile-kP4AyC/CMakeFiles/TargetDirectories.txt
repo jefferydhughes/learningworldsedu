@@ -1,0 +1,3 @@
+/sessions/zen-exciting-tesla/mnt/blip-main/common/VXGameServer/build/CMakeFiles/CMakeScratch/TryCompile-kP4AyC/CMakeFiles/cmTC_f9843.dir
+/sessions/zen-exciting-tesla/mnt/blip-main/common/VXGameServer/build/CMakeFiles/CMakeScratch/TryCompile-kP4AyC/CMakeFiles/edit_cache.dir
+/sessions/zen-exciting-tesla/mnt/blip-main/common/VXGameServer/build/CMakeFiles/CMakeScratch/TryCompile-kP4AyC/CMakeFiles/rebuild_cache.dir
