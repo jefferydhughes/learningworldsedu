@@ -1,0 +1,37 @@
+FROM ubuntu:22.04
+
+ARG DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    cmake \
+    ninja-build \
+    git \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /repo
+
+# Copy only what the game server build needs
+COPY core/ ./core/
+COPY deps/ ./deps/
+COPY common/VXFramework/ ./common/VXFramework/
+COPY common/VXLuaSandbox/ ./common/VXLuaSandbox/
+COPY common/VXNetworking/ ./common/VXNetworking/
+COPY common/VXGameServer/ ./common/VXGameServer/
+COPY build-gameserver.sh ./
+
+RUN chmod +x build-gameserver.sh && ./build-gameserver.sh
+
+# Lua modules required by the sandbox (localevent, kvs, leaderboard, etc.)
+COPY lua/modules/ /bundle/modules/
+
+# Bundle config (ci/bundle contains config.json and cache/shapes dirs)
+COPY ci/bundle/ /bundle/
+
+# Copy worlds for --local-script mode
+COPY worlds/ ./worlds/
+
+ENV HOSTNAME=docker-local
+
+CMD ["./gameserver-build/gameserver", "--local-script", "worlds/prison_escape/world.lua", "8"]

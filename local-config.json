@@ -1,0 +1,6 @@
+{
+  "APIHost": "http://fake-hub:10083",
+  "GameServerTag": "c044b160",
+  "Version": "0.0.50 (alpha)",
+  "Commit": ""
+}

@@ -1,0 +1,9 @@
+FROM golang:1.21-alpine AS builder
+WORKDIR /src
+COPY fake-hub/main.go .
+RUN go mod init fakehub && go build -o /fake-hub .
+
+FROM alpine:3.19
+COPY --from=builder /fake-hub /fake-hub
+EXPOSE 10083
+CMD ["/fake-hub"]

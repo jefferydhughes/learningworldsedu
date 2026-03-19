@@ -1,0 +1,37 @@
+version: "3.8"
+
+services:
+  fake-hub:
+    build:
+      context: .
+      dockerfile: Dockerfile.fake-hub
+    ports:
+      - "10083:10083"
+    volumes:
+      - ./worlds:/worlds:ro
+    environment:
+      WORLD_LUA_PATH: /worlds/prison_escape/world.lua
+      GAME_SERVER_ADDRESS: "localhost:8080"
+      WORLD_ID: "prison-escape-local"
+
+  gameserver:
+    build:
+      context: .
+      dockerfile: Dockerfile.gameserver
+    depends_on:
+      - fake-hub
+    ports:
+      - "8080:80"
+    environment:
+      HOSTNAME: docker-local
+    volumes:
+      # Override config.json to point at fake-hub
+      - ./local-config.json:/bundle/config.json:ro
+    # Standard production mode: dev <worldID> <serverIDPrefix> <authToken> [maxPlayers]
+    command: >
+      ./gameserver-build/gameserver
+      dev
+      prison-escape-local
+      local-1-
+      fake-local-token
+      8

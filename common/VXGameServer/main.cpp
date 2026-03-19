@@ -259,15 +259,17 @@ std::string parseArgumentsAndLoadConfiguration(const int argc, const char * cons
         vx::Config::setApiHost(HUB_API_URL);
     }
 
-    // Parse hub API URL
+    // Parse hub API URL (use Config::apiHost() so config.json can override)
     std::string hubAddr;
     uint16_t hubPort = 0;
     bool hubSecure = false;
     {
+        const char* _cfgHost = vx::Config::apiHost();
+        const std::string hubAPIURL = (_cfgHost != nullptr && _cfgHost[0] != '\0') ? std::string(_cfgHost) : HUB_API_URL;
         // parse URL
-        const vx::URL url = vx::URL::make(HUB_API_URL);
+        const vx::URL url = vx::URL::make(hubAPIURL);
         if (url.isValid() == false) {
-            return std::string("can't parse hub private URL: ") + HUB_API_URL;
+            return std::string("can't parse hub private URL: ") + hubAPIURL;
         }
         
         // validate scheme

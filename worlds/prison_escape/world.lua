@@ -110,7 +110,7 @@ local function buildRoom(zone, wallColor, floorColor, ceilingColor)
     local floor = MutableShape()
     for x = 0, w - 1 do
         for z = 0, l - 1 do
-            floor:AddBlock(x, 0, z, floorColor or COLORS.floor)
+            floor:AddBlock(floorColor or COLORS.floor, x, 0, z)
         end
     end
     floor.Position = o + Number3(0, -1, 0)
@@ -122,7 +122,7 @@ local function buildRoom(zone, wallColor, floorColor, ceilingColor)
     local ceil = MutableShape()
     for x = 0, w - 1 do
         for z = 0, l - 1 do
-            ceil:AddBlock(x, 0, z, ceilingColor or COLORS.ceiling)
+            ceil:AddBlock(ceilingColor or COLORS.ceiling, x, 0, z)
         end
     end
     ceil.Position = o + Number3(0, h, 0)
@@ -134,7 +134,7 @@ local function buildRoom(zone, wallColor, floorColor, ceilingColor)
     local leftWall = MutableShape()
     for z = 0, l - 1 do
         for y = 0, h - 1 do
-            leftWall:AddBlock(0, y, z, wallColor or COLORS.stone)
+            leftWall:AddBlock(wallColor or COLORS.stone, 0, y, z)
         end
     end
     leftWall.Position = o + Number3(-1, 0, 0)
@@ -146,7 +146,7 @@ local function buildRoom(zone, wallColor, floorColor, ceilingColor)
     local rightWall = MutableShape()
     for z = 0, l - 1 do
         for y = 0, h - 1 do
-            rightWall:AddBlock(0, y, z, wallColor or COLORS.stone)
+            rightWall:AddBlock(wallColor or COLORS.stone, 0, y, z)
         end
     end
     rightWall.Position = o + Number3(w, 0, 0)
@@ -163,7 +163,7 @@ local function buildRoom(zone, wallColor, floorColor, ceilingColor)
             -- Leave doorway gap at the far end (z = l)
             local isDoor = (x >= doorStart and x < doorEnd and y < DOOR_HEIGHT)
             if not isDoor then
-                backWall:AddBlock(x, y, 0, wallColor or COLORS.stone)
+                backWall:AddBlock(wallColor or COLORS.stone, x, y, 0)
             end
         end
     end
@@ -179,7 +179,7 @@ local function buildRoom(zone, wallColor, floorColor, ceilingColor)
             for y = 0, h - 1 do
                 local isDoor = (x >= doorStart and x < doorEnd and y < DOOR_HEIGHT)
                 if not isDoor then
-                    frontWall:AddBlock(x, y, 0, wallColor or COLORS.stone)
+                    frontWall:AddBlock(wallColor or COLORS.stone, x, y, 0)
                 end
             end
         end
@@ -199,7 +199,7 @@ local function createLaser(zone, zOffset, isFlashing, flashOff, flashOn)
 
     local laser = MutableShape()
     for x = 0, w - 1 do
-        laser:AddBlock(x, 0, 0, COLORS.red)
+        laser:AddBlock(COLORS.red, x, 0, 0)
     end
     laser.Position = o + Number3(0, 1, zOffset)
     laser:SetParent(World)
@@ -295,7 +295,7 @@ local function createCheckpoint(zone, zOffset, checkpointIndex)
     local padStart = math.floor((w - 4) / 2)
     for x = 0, 3 do
         for z = 0, 3 do
-            cp:AddBlock(x, 0, z, COLORS.green)
+            cp:AddBlock(COLORS.green, x, 0, z)
         end
     end
     cp.Position = o + Number3(padStart, 0, zOffset)
@@ -347,7 +347,7 @@ local function createVictoryZone(zone)
     local vz = MutableShape()
     for x = 0, w - 1 do
         for z = 0, l - 1 do
-            vz:AddBlock(x, 0, z, COLORS.yellow)
+            vz:AddBlock(COLORS.yellow, x, 0, z)
         end
     end
     vz.Position = o + Number3(0, 0, 0)
@@ -399,7 +399,7 @@ local function createPrisonBars(zone)
     for i = 1, 4 do
         local x = i * spacing
         for y = 0, h - 1 do
-            bars:AddBlock(x, y, 0, COLORS.barGrey)
+            bars:AddBlock(COLORS.barGrey, x, y, 0)
         end
     end
     bars.Position = o + Number3(0, 0, -1)
@@ -581,66 +581,47 @@ end
 -- SERVER-SIDE INITIALIZATION
 -- ============================================================
 
-if is_server then
-
-    LocalEvent:Listen(LocalEvent.OnStart, function()
-        print("[PRISON ESCAPE] Server starting...")
-        buildPrisonWorld()
-    end)
-
-    LocalEvent:Listen(LocalEvent.OnPlayerJoin, function(player)
-        print("[PRISON ESCAPE] Player joined: " .. (player.Username or "unknown"))
-        respawnPlayer(player)
-    end)
-
-    -- Listen for code injection events from LMS
-    LocalEvent:Listen(LocalEvent.DidReceiveEvent, function(event)
-        if event.Type == "inject_code" then
-            local chapter = event.chapter
-            local code = event.code
-            if chapter and code then
-                injectStudentCode(chapter, code)
-            end
-        elseif event.Type == "validate_code" then
-            local chapter = event.chapter
-            if chapter then
-                validateStudentCode(chapter)
-            end
-        elseif event.Type == "reset_player" then
-            -- Reset a player back to spawn
-            for _, p in ipairs(Players) do
-                if p.Username == event.playerName or tostring(p.ID) == tostring(event.playerID) then
-                    respawnPlayer(p)
-                    break
-                end
-            end
-        end
-    end)
-
-    -- Server tick: check for players falling out of bounds
-    LocalEvent:Listen(LocalEvent.Tick, function(dt)
-        for _, player in ipairs(Players) do
-            if player.Position.Y < -20 then
-                respawnPlayer(player)
-            end
-        end
-    end)
+Server.OnStart = function()
+    print("[PRISON ESCAPE] Server starting...")
+    buildPrisonWorld()
 end
 
--- ============================================================
--- CLIENT-SIDE (UI, Camera, Controls)
--- ============================================================
+Server.OnPlayerJoin = function(player)
+    print("[PRISON ESCAPE] Player joined: " .. (player.Username or "unknown"))
+    respawnPlayer(player)
+end
 
-if is_client then
+-- Listen for code injection events from LMS
+Server.DidReceiveEvent = function(event)
+    if event.Type == "inject_code" then
+        local chapter = event.chapter
+        local code = event.code
+        if chapter and code then
+            injectStudentCode(chapter, code)
+        end
+    elseif event.Type == "validate_code" then
+        local chapter = event.chapter
+        if chapter then
+            validateStudentCode(chapter)
+        end
+    elseif event.Type == "reset_player" then
+        -- Reset a player back to spawn
+        for _, p in ipairs(Players) do
+            if p.Username == event.playerName or tostring(p.ID) == tostring(event.playerID) then
+                respawnPlayer(p)
+                break
+            end
+        end
+    end
+end
 
-    LocalEvent:Listen(LocalEvent.OnStart, function()
-        -- Set camera to third-person RPG style
-        Camera:SetModeThirdPerson()
-
-        -- Dim ambient for prison atmosphere
-        Ambient.Color = Color(40, 40, 50)
-        Ambient.Intensity = 0.4
-    end)
+-- Server tick: check for players falling out of bounds
+Server.Tick = function(dt)
+    for _, player in ipairs(Players) do
+        if player.Position.Y < -20 then
+            respawnPlayer(player)
+        end
+    end
 end
 
 -- ============================================================

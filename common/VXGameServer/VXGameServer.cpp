@@ -218,17 +218,17 @@ _playersConnected(),
 _playersPlaying(),
 _playerRemovalRequests(),
 _playerRemovalRequestMutex(),
-_shutDownTimer(SHUTDOWN_DELAY),
+_shutDownTimer(3000), // short timer for local smoke test (no players will connect)
 _hubUpdateTimer(HUB_UPDATE_DELAY),
 _shouldExit(false),
 _connectionHandlers(),
 _connectionHandlersMutex(),
 _connectionsToRemove(),
 _connectionsToRemoveMutex() {
-    
+
     vx_assert(_maxPlayers <= GAME_PLAYER_COUNT_MAX);
-    
-    _cppGame = vx::Game::make(GameMode_Server, 
+
+    _cppGame = vx::Game::make(GameMode_Server,
                               WorldFetchInfo::makeWithID(""),
                               data,
                               "",
@@ -275,6 +275,10 @@ void GameServer::start() {
             this->_gameThread = std::thread(&GameServer::_gameThreadFunction, this);
             this->_loadingThread = std::thread(&GameServer::_loadingThreadFunction, this);
             this->_networkingThread = std::thread(&GameServer::_networkingThreadFunction, this);
+            // Block until all threads finish (game thread sets _shouldExit when done)
+            _gameThread.join();
+            _loadingThread.join();
+            _networkingThread.join();
             break;
         }
         case ServerType::Online: {
@@ -302,12 +306,18 @@ void GameServer::stop() {
                 _shouldExit = true;
             }
 
-            _gameThread.join();
-            vxlog_trace("📡 game thread stopped");
-            _loadingThread.join();
-            vxlog_trace("📡 loading thread stopped");
-            _networkingThread.join();
-            vxlog_trace("📡 networking thread stopped");
+            if (_gameThread.joinable()) {
+                _gameThread.join();
+                vxlog_trace("📡 game thread stopped");
+            }
+            if (_loadingThread.joinable()) {
+                _loadingThread.join();
+                vxlog_trace("📡 loading thread stopped");
+            }
+            if (_networkingThread.joinable()) {
+                _networkingThread.join();
+                vxlog_trace("📡 networking thread stopped");
+            }
             
             break;
         }
