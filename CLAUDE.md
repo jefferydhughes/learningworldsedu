@@ -99,7 +99,43 @@ HOSTNAME=$(hostname) ./gameserver-build/gameserver dev abc123-world-uuid eu-1- m
 
 The server connects to `api.cu.bzh:443` by default. Override via `config.json` in the working directory.
 
-## Fixes Applied (March 2025)
+## Local Development Stack
+
+### Quick Start — Prison Escape world
+
+```bash
+docker compose -f docker-compose.local.yml up
+```
+
+This starts two containers:
+1. **fake-hub** (port 10083) — minimal Go HTTP server that acts as the Hub API
+2. **gameserver** (port 8080→80) — C++ game server in `dev` mode, world `prison-escape-local`
+
+The game server fetches `worlds/prison_escape/world.lua` from fake-hub at startup, builds the world,
+and waits for WebSocket client connections on `ws://localhost:8080`.
+
+### Smoke Test (no client needed)
+
+```bash
+docker build -t blip-prison-escape -f Dockerfile.gameserver .
+docker run --rm -e HOSTNAME=docker-local blip-prison-escape
+```
+
+Runs `--local-script` mode: loads and executes the Lua world, prints output, then exits in ~3 seconds.
+No WebSocket port is opened in this mode — use the docker-compose stack to connect a real client.
+
+### Adding a New World
+
+1. Drop a `world.lua` in `worlds/<name>/`
+2. In `docker-compose.local.yml` update:
+   - `WORLD_LUA_PATH`: `/worlds/<name>/world.lua`
+   - `WORLD_ID`: `<name>-local`
+   - `command:` worldID arg: `<name>-local`
+3. `docker compose -f docker-compose.local.yml up --build`
+
+---
+
+## Fixes Applied (March 2025 – March 2026)
 
 The original build was broken. Here's what was fixed:
 
@@ -124,6 +160,19 @@ The original build was broken. Here's what was fixed:
 - Built **libpng 1.6.47** from source
 - Created `deps/libluau/_active_/` and `deps/libpng/_active_/` directory structures
 
+### main.cpp — additional fixes (March 2026)
+- **`--local-script` mode added:** reads a Lua file from disk, creates a local `GameServer`, and runs it without a WebSocket port. Used for smoke testing.
+- **Hub URL override:** `parseArgumentsAndLoadConfiguration` now reads `Config::apiHost()` (from `config.json`) instead of the hardcoded `HUB_API_URL` macro when constructing the `HubPrivateClient` address. This lets `local-config.json` redirect the game server to `fake-hub`.
+
+### VXGameServer.cpp — threading fixes (March 2026)
+- **Local mode:** `start()` now joins all three threads instead of returning immediately (was causing use-after-free / segfault when `main()` destroyed `gameServer` while threads were still running).
+- **`stop()` guards:** Added `joinable()` checks before each `join()` to prevent double-join if `stop()` is called after `start()` already joined.
+- **Fast shutdown:** Local mode constructor sets `_shutDownTimer(3000)` (3 s) instead of `SHUTDOWN_DELAY` (30 s) so smoke tests exit quickly.
+
+### worlds/prison_escape/world.lua — API fixes (March 2026)
+- Replaced `LocalEvent`-based init (`if is_server then LocalEvent:Listen(...)`) with server sandbox API: `Server.OnStart`, `Server.OnPlayerJoin`, `Server.DidReceiveEvent`, `Server.Tick`.
+- Fixed all 10 `MutableShape:AddBlock` calls: argument order is `(color, x, y, z)`, not `(x, y, z, color)`.
+
 ## Common Tasks for Claude Code
 
 ### "Fix a compilation error"
@@ -146,9 +195,29 @@ The original build was broken. Here's what was fixed:
 - Three regions: EU (141.94.97.66), US (51.222.244.45), SG (15.235.181.168)
 - Scheduler at `go/cu.bzh/scheduler/main.go` manages container lifecycle
 
-### "Run with a local Hub"
-- Use `servers/docker-compose-prod-local.yml` for local development
-- The game server connects to whatever `HUB_API_URL` resolves to (default: `https://api.cu.bzh`)
+### "Run with a local Hub (fake-hub)"
+- Use `docker-compose.local.yml` — spins up `fake-hub` (Go) + `gameserver` (C++) together
+- `fake-hub` listens on port 10083, serves the world script and ACKs heartbeats
+- `gameserver` connects to `fake-hub`, loads the Lua world, and opens a WebSocket on port 8080
+
+```bash
+docker compose -f docker-compose.local.yml up      # start
+docker compose -f docker-compose.local.yml down     # stop
+docker compose -f docker-compose.local.yml build    # rebuild after code changes
+```
+
+Key files:
+- `fake-hub/main.go` — minimal Go Hub stub
+- `Dockerfile.fake-hub` — builds the fake-hub binary
+- `local-config.json` — mounted at `/bundle/config.json` inside gameserver; sets `APIHost` to `http://fake-hub:10083`
+
+Client connection info when the stack is running:
+- Game server WebSocket: `ws://localhost:8080`
+- Hub (for world lookup): `GET http://localhost:10083/worlds/prison-escape-local/server/any-tag`
+  → returns `{"server":{"address":"localhost:8080","players":N,"maxPlayers":8}}`
+
+To run a different world: change `WORLD_LUA_PATH` and `WORLD_ID` env vars in `docker-compose.local.yml`,
+and update the `command:` worldID argument to match.
 
 ## Build Dependency Graph
 

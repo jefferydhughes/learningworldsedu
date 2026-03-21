@@ -1,0 +1,1460 @@
+{
+  "platform_name": "Voxel Code Platform",
+  "description": "A block-based visual programming environment for creating interactive 3D voxel worlds, inspired by box.code.game",
+  
+  "core_architecture": {
+    "layout": {
+      "type": "split_view",
+      "left_panel": {
+        "width": "30-40%",
+        "component": "block_editor",
+        "description": "Drag-and-drop block-based code editor"
+      },
+      "right_panel": {
+        "width": "60-70%",
+        "component": "voxel_viewport",
+        "description": "Real-time 3D voxel world renderer"
+      }
+    },
+    
+    "top_navigation": {
+      "buttons": [
+        { "id": "home", "icon": "home", "action": "navigate_home" },
+        { "id": "help", "icon": "question", "action": "show_help_modal" },
+        { "id": "file", "icon": "folder", "dropdown": ["new_project", "open", "save", "download_scripts", "upload"] },
+        { "id": "save", "icon": "save", "action": "save_project", "states": ["saving", "saved"] },
+        { "id": "new_project", "icon": "plus", "action": "create_new_project" },
+        { "id": "scan", "icon": "qr", "action": "show_qr_share" },
+        { "id": "login", "icon": "user", "action": "toggle_login" }
+      ]
+    },
+    
+    "play_controls": {
+      "position": "bottom_right_floating",
+      "buttons": [
+        { "id": "play", "icon": "play", "action": "execute_code", "color": "orange" },
+        { "id": "stop", "icon": "stop", "action": "stop_execution", "color": "red" }
+      ],
+      "edit_lock": "Cannot modify blocks while running. Click stop to edit."
+    }
+  },
+  
+  "block_system": {
+    "description": "Scratch-like block-based programming interface with jigsaw-puzzle connections",
+    
+    "block_types": {
+      "hat_blocks": {
+        "description": "Event trigger blocks that start scripts",
+        "shape": "rounded_top",
+        "examples": ["when_start_clicked", "when_key_pressed", "when_player_position_changed"]
+      },
+      "stack_blocks": {
+        "description": "Command blocks that perform actions",
+        "shape": "notched",
+        "examples": ["move_player_to", "put_cube", "play_sound"]
+      },
+      "boolean_blocks": {
+        "description": "Condition blocks that return true/false",
+        "shape": "hexagonal",
+        "examples": ["key_pressed", "cube_at_position", "is_even"]
+      },
+      "reporter_blocks": {
+        "description": "Value blocks that return numbers, strings, or positions",
+        "shape": "rounded_rectangle",
+        "examples": ["player_position", "pointer_position", "random_number"]
+      },
+      "control_blocks": {
+        "description": "Flow control blocks (loops, conditionals)",
+        "shape": "c_shaped",
+        "examples": ["repeat", "forever", "if", "if_else", "repeat_until"]
+      },
+      "procedure_blocks": {
+        "description": "Custom function definition and call blocks",
+        "shape": "custom",
+        "examples": ["define_function", "return", "parameter"]
+      }
+    },
+    
+    "block_features": {
+      "drag_and_drop": true,
+      "snap_connection": true,
+      "nested_blocks": true,
+      "dropdown_inputs": true,
+      "text_inputs": true,
+      "numeric_inputs": true,
+      "color_coding": true,
+      "inline_help": true,
+      "duplicate": true,
+      "delete": true
+    }
+  },
+  
+  "block_categories": [
+    {
+      "id": "events",
+      "name": "Events",
+      "color": "#4A90E2",
+      "icon": "flag",
+      "blocks": [
+        {
+          "id": "when_start_clicked",
+          "type": "hat",
+          "text": "when Start clicked",
+          "description": "Triggers when the play button is pressed"
+        },
+        {
+          "id": "when_key_pressed",
+          "type": "hat",
+          "text": "when key [KEY] pressed",
+          "inputs": {
+            "KEY": { "type": "dropdown", "options": ["a-z", "space", "arrow_keys", "0-9"] }
+          }
+        },
+        {
+          "id": "when_player_position_changed",
+          "type": "hat",
+          "text": "when player's position changed"
+        },
+        {
+          "id": "when_cube_broken",
+          "type": "hat",
+          "text": "when the cube is broken"
+        },
+        {
+          "id": "when_screen_clicked",
+          "type": "hat",
+          "text": "when screen clicked"
+        },
+        {
+          "id": "when_button_tapped",
+          "type": "hat",
+          "text": "when button [BUTTON] tapped",
+          "inputs": {
+            "BUTTON": { "type": "dropdown", "options": ["A", "B", "C", "custom"] }
+          }
+        },
+        {
+          "id": "when_mouse_pressed",
+          "type": "hat",
+          "text": "when [BUTTON] mouse pressed",
+          "inputs": {
+            "BUTTON": { "type": "dropdown", "options": ["left", "right", "middle"] }
+          }
+        },
+        {
+          "id": "when_receive",
+          "type": "hat",
+          "text": "when I receive [MESSAGE]",
+          "inputs": {
+            "MESSAGE": { "type": "text" }
+          }
+        },
+        {
+          "id": "broadcast",
+          "type": "stack",
+          "text": "broadcast [MESSAGE]",
+          "inputs": {
+            "MESSAGE": { "type": "text" }
+          }
+        }
+      ]
+    },
+    
+    {
+      "id": "control",
+      "name": "Control",
+      "color": "#FFB84D",
+      "icon": "gamepad",
+      "blocks": [
+        {
+          "id": "wait",
+          "type": "stack",
+          "text": "wait [DURATION] seconds",
+          "inputs": {
+            "DURATION": { "type": "number", "default": 1 }
+          }
+        },
+        {
+          "id": "repeat",
+          "type": "control",
+          "text": "repeat [TIMES] times",
+          "inputs": {
+            "TIMES": { "type": "number", "default": 10 }
+          },
+          "nested": true
+        },
+        {
+          "id": "forever",
+          "type": "control",
+          "text": "forever",
+          "nested": true
+        },
+        {
+          "id": "if",
+          "type": "control",
+          "text": "if [CONDITION]",
+          "inputs": {
+            "CONDITION": { "type": "boolean" }
+          },
+          "nested": true
+        },
+        {
+          "id": "if_else",
+          "type": "control",
+          "text": "if [CONDITION]",
+          "inputs": {
+            "CONDITION": { "type": "boolean" }
+          },
+          "nested": true,
+          "has_else": true
+        },
+        {
+          "id": "repeat_until",
+          "type": "control",
+          "text": "repeat until [CONDITION]",
+          "inputs": {
+            "CONDITION": { "type": "boolean" }
+          },
+          "nested": true
+        },
+        {
+          "id": "stop",
+          "type": "stack",
+          "text": "stop [SCOPE]",
+          "inputs": {
+            "SCOPE": { "type": "dropdown", "options": ["all", "this_script", "other_scripts"] }
+          }
+        },
+        {
+          "id": "quit_loop",
+          "type": "stack",
+          "text": "quit loop"
+        }
+      ]
+    },
+    
+    {
+      "id": "world",
+      "name": "World",
+      "color": "#B565D8",
+      "icon": "globe",
+      "blocks": [
+        {
+          "id": "reset_world",
+          "type": "stack",
+          "text": "reset current world to template [TEMPLATE]",
+          "inputs": {
+            "TEMPLATE": { "type": "dropdown", "options": ["desert", "grassland", "snow", "ocean", "custom"] }
+          }
+        },
+        {
+          "id": "set_world_as",
+          "type": "stack",
+          "text": "set world as [TYPE]",
+          "inputs": {
+            "TYPE": { "type": "dropdown", "options": ["arena", "spaceport", "sunny_day", "custom"] }
+          }
+        },
+        {
+          "id": "set_skybox",
+          "type": "stack",
+          "text": "set skybox to [SKYBOX]",
+          "inputs": {
+            "SKYBOX": { "type": "dropdown", "options": ["blue_sky", "sunset", "night", "space", "custom"] }
+          }
+        },
+        {
+          "id": "enable_clouds",
+          "type": "stack",
+          "text": "[ENABLE] clouds",
+          "inputs": {
+            "ENABLE": { "type": "dropdown", "options": ["enable", "disable"] }
+          }
+        },
+        {
+          "id": "set_time",
+          "type": "stack",
+          "text": "set time to [TIME] o'clock",
+          "inputs": {
+            "TIME": { "type": "number", "default": 12, "min": 0, "max": 24 }
+          }
+        },
+        {
+          "id": "set_fog",
+          "type": "stack",
+          "text": "set fog level [LEVEL]",
+          "inputs": {
+            "LEVEL": { "type": "number", "default": 200, "min": 0, "max": 1000 }
+          }
+        },
+        {
+          "id": "set_perspective",
+          "type": "stack",
+          "text": "set to [PERSPECTIVE] person perspective",
+          "inputs": {
+            "PERSPECTIVE": { "type": "dropdown", "options": ["first", "third"] }
+          }
+        },
+        {
+          "id": "set_camera_azimuth",
+          "type": "stack",
+          "text": "set camera azimuth to [ANGLE] degrees",
+          "inputs": {
+            "ANGLE": { "type": "number", "default": 90 }
+          }
+        },
+        {
+          "id": "rotate_camera",
+          "type": "stack",
+          "text": "rotate camera around [AXIS] by [DEGREES] degrees",
+          "inputs": {
+            "AXIS": { "type": "dropdown", "options": ["X", "Y", "Z"] },
+            "DEGREES": { "type": "number", "default": 90 }
+          }
+        },
+        {
+          "id": "reset_camera",
+          "type": "stack",
+          "text": "reset camera"
+        },
+        {
+          "id": "take_screenshot",
+          "type": "stack",
+          "text": "take screenshot"
+        },
+        {
+          "id": "set_snowfall",
+          "type": "stack",
+          "text": "set snowfall [AMOUNT] with speed [SPEED] at rate [RATE]",
+          "inputs": {
+            "AMOUNT": { "type": "number", "default": 2000 },
+            "SPEED": { "type": "number", "default": 10 },
+            "RATE": { "type": "number", "default": 500 }
+          }
+        }
+      ]
+    },
+    
+    {
+      "id": "player",
+      "name": "Player",
+      "color": "#FF6B9D",
+      "icon": "person",
+      "blocks": [
+        {
+          "id": "set_player_skin",
+          "type": "stack",
+          "text": "set player's skin to [SKIN]",
+          "inputs": {
+            "SKIN": { "type": "dropdown", "options": ["Codemao", "Steve", "Alex", "custom"] }
+          }
+        },
+        {
+          "id": "set_player_name",
+          "type": "stack",
+          "text": "set player's name as [NAME]",
+          "inputs": {
+            "NAME": { "type": "text" }
+          }
+        },
+        {
+          "id": "player_position",
+          "type": "reporter",
+          "text": "player's position",
+          "returns": "boolean"
+        },
+        {
+          "id": "or",
+          "type": "boolean",
+          "text": "[BOOL1] or [BOOL2]",
+          "inputs": {
+            "BOOL1": { "type": "boolean" },
+            "BOOL2": { "type": "boolean" }
+          },
+          "returns": "boolean"
+        },
+        {
+          "id": "not",
+          "type": "boolean",
+          "text": "not [BOOL]",
+          "inputs": {
+            "BOOL": { "type": "boolean" }
+          },
+          "returns": "boolean"
+        },
+        {
+          "id": "equals",
+          "type": "boolean",
+          "text": "[VALUE1] = [VALUE2]",
+          "inputs": {
+            "VALUE1": { "type": "any" },
+            "VALUE2": { "type": "any" }
+          },
+          "returns": "boolean"
+        },
+        {
+          "id": "greater_than",
+          "type": "boolean",
+          "text": "[NUM1] > [NUM2]",
+          "inputs": {
+            "NUM1": { "type": "number" },
+            "NUM2": { "type": "number" }
+          },
+          "returns": "boolean"
+        },
+        {
+          "id": "less_than",
+          "type": "boolean",
+          "text": "[NUM1] < [NUM2]",
+          "inputs": {
+            "NUM1": { "type": "number" },
+            "NUM2": { "type": "number" }
+          },
+          "returns": "boolean"
+        },
+        {
+          "id": "square_root",
+          "type": "reporter",
+          "text": "square root [NUMBER]",
+          "inputs": {
+            "NUMBER": { "type": "number" }
+          },
+          "returns": "number"
+        },
+        {
+          "id": "remainder",
+          "type": "reporter",
+          "text": "remainder of [NUM1] ÷ [NUM2]",
+          "inputs": {
+            "NUM1": { "type": "number" },
+            "NUM2": { "type": "number" }
+          },
+          "returns": "number"
+        },
+        {
+          "id": "sin",
+          "type": "reporter",
+          "text": "sin [ANGLE] degrees",
+          "inputs": {
+            "ANGLE": { "type": "number" }
+          },
+          "returns": "number"
+        },
+        {
+          "id": "cos",
+          "type": "reporter",
+          "text": "cos [ANGLE] degrees",
+          "inputs": {
+            "ANGLE": { "type": "number" }
+          },
+          "returns": "number"
+        },
+        {
+          "id": "tan",
+          "type": "reporter",
+          "text": "tan [ANGLE] degrees",
+          "inputs": {
+            "ANGLE": { "type": "number" }
+          },
+          "returns": "number"
+        },
+        {
+          "id": "rounding",
+          "type": "reporter",
+          "text": "rounding [NUMBER]",
+          "inputs": {
+            "NUMBER": { "type": "number" }
+          },
+          "returns": "number"
+        },
+        {
+          "id": "true",
+          "type": "boolean",
+          "text": "true",
+          "returns": "boolean"
+        },
+        {
+          "id": "false",
+          "type": "boolean",
+          "text": "false",
+          "returns": "boolean"
+        },
+        {
+          "id": "join",
+          "type": "reporter",
+          "text": "put [STRING1] [STRING2] together",
+          "inputs": {
+            "STRING1": { "type": "text" },
+            "STRING2": { "type": "text" }
+          },
+          "returns": "string"
+        }
+      ]
+    },
+    
+    {
+      "id": "data",
+      "name": "Data",
+      "color": "#FFCC66",
+      "icon": "database",
+      "blocks": [
+        {
+          "id": "set_variable",
+          "type": "stack",
+          "text": "set [VARIABLE] to [VALUE]",
+          "inputs": {
+            "VARIABLE": { "type": "variable" },
+            "VALUE": { "type": "any" }
+          }
+        },
+        {
+          "id": "change_variable",
+          "type": "stack",
+          "text": "change [VARIABLE] by [VALUE]",
+          "inputs": {
+            "VARIABLE": { "type": "variable" },
+            "VALUE": { "type": "number" }
+          }
+        },
+        {
+          "id": "get_variable",
+          "type": "reporter",
+          "text": "[VARIABLE]",
+          "inputs": {
+            "VARIABLE": { "type": "variable" }
+          },
+          "returns": "any"
+        },
+        {
+          "id": "create_list",
+          "type": "stack",
+          "text": "create list [LIST_NAME]"
+        },
+        {
+          "id": "add_to_list",
+          "type": "stack",
+          "text": "add [VALUE] to [LIST]",
+          "inputs": {
+            "VALUE": { "type": "any" },
+            "LIST": { "type": "list" }
+          }
+        },
+        {
+          "id": "delete_from_list",
+          "type": "stack",
+          "text": "delete [INDEX] of [LIST]",
+          "inputs": {
+            "INDEX": { "type": "number" },
+            "LIST": { "type": "list" }
+          }
+        },
+        {
+          "id": "insert_in_list",
+          "type": "stack",
+          "text": "insert [VALUE] at [INDEX] of [LIST]",
+          "inputs": {
+            "VALUE": { "type": "any" },
+            "INDEX": { "type": "number" },
+            "LIST": { "type": "list" }
+          }
+        },
+        {
+          "id": "replace_in_list",
+          "type": "stack",
+          "text": "replace item [INDEX] of [LIST] with [VALUE]",
+          "inputs": {
+            "INDEX": { "type": "number" },
+            "LIST": { "type": "list" },
+            "VALUE": { "type": "any" }
+          }
+        },
+        {
+          "id": "item_of_list",
+          "type": "reporter",
+          "text": "item [INDEX] of [LIST]",
+          "inputs": {
+            "INDEX": { "type": "number" },
+            "LIST": { "type": "list" }
+          },
+          "returns": "any"
+        },
+        {
+          "id": "length_of_list",
+          "type": "reporter",
+          "text": "length of [LIST]",
+          "inputs": {
+            "LIST": { "type": "list" }
+          },
+          "returns": "number"
+        },
+        {
+          "id": "list_contains",
+          "type": "boolean",
+          "text": "[LIST] contains [VALUE]",
+          "inputs": {
+            "LIST": { "type": "list" },
+            "VALUE": { "type": "any" }
+          },
+          "returns": "boolean"
+        }
+      ]
+    },
+    
+    {
+      "id": "procedures",
+      "name": "Procedures",
+      "color": "#FF8080",
+      "icon": "function",
+      "blocks": [
+        {
+          "id": "define_function",
+          "type": "hat",
+          "text": "define function [FUNCTION_NAME]",
+          "inputs": {
+            "FUNCTION_NAME": { "type": "text" }
+          },
+          "custom": true
+        },
+        {
+          "id": "call_function",
+          "type": "stack",
+          "text": "[FUNCTION_NAME]",
+          "inputs": {
+            "FUNCTION_NAME": { "type": "procedure" }
+          }
+        },
+        {
+          "id": "return",
+          "type": "stack",
+          "text": "return [VALUE]",
+          "inputs": {
+            "VALUE": { "type": "any" }
+          }
+        },
+        {
+          "id": "parameter",
+          "type": "reporter",
+          "text": "parameter [NAME]",
+          "inputs": {
+            "NAME": { "type": "text" }
+          },
+          "returns": "any"
+        }
+      ]
+    }
+  ],
+  
+  "voxel_engine": {
+    "description": "3D voxel world rendering and interaction system",
+    
+    "renderer": {
+      "engine": "Three.js",
+      "renderer_type": "WebGLRenderer",
+      "features": {
+        "anti_aliasing": true,
+        "shadows": true,
+        "fog": true,
+        "skybox": true,
+        "particle_effects": true
+      }
+    },
+    
+    "world": {
+      "coordinate_system": "right_handed",
+      "grid_size": "unlimited",
+      "chunk_system": true,
+      "chunk_size": "16x16x16",
+      "max_height": 256,
+      "min_height": 0
+    },
+    
+    "camera": {
+      "types": ["first_person", "third_person", "free"],
+      "controls": {
+        "mouse_look": true,
+        "keyboard_movement": "WASD",
+        "zoom": "scroll",
+        "rotate": "arrow_keys"
+      },
+      "features": {
+        "collision_detection": true,
+        "smooth_movement": true,
+        "adjustable_fov": true
+      }
+    },
+    
+    "player": {
+      "model": "voxel_character",
+      "customization": {
+        "skins": true,
+        "animations": ["idle", "walk", "run", "jump", "sit", "eat", "attack"]
+      },
+      "physics": {
+        "gravity": true,
+        "collision": true,
+        "flying_mode": "toggle",
+        "jetpack": "optional"
+      },
+      "inventory": {
+        "hotbar_slots": 8,
+        "types": ["cubes", "tools", "items"]
+      }
+    },
+    
+    "cube_system": {
+      "types": [
+        {
+          "id": "nature",
+          "examples": ["grass", "dirt", "stone", "wood", "sand"]
+        },
+        {
+          "id": "building",
+          "examples": ["brick", "concrete", "glass", "metal"]
+        },
+        {
+          "id": "solid",
+          "examples": ["colored_blocks"]
+        },
+        {
+          "id": "decoration",
+          "examples": ["furniture", "plants", "lights"]
+        },
+        {
+          "id": "text",
+          "examples": ["letters", "numbers", "symbols"]
+        }
+      ],
+      "properties": {
+        "texture": "per_face_textures",
+        "collision": "configurable",
+        "transparency": "supported",
+        "emissive": "supported"
+      }
+    },
+    
+    "interaction": {
+      "raycasting": {
+        "pointer_system": true,
+        "highlight_target": true,
+        "max_distance": 100
+      },
+      "actions": ["place_cube", "break_cube", "select_cube", "use_item"],
+      "input": {
+        "keyboard": true,
+        "mouse": true,
+        "touch": "mobile_support"
+      }
+    },
+    
+    "world_effects": {
+      "weather": ["clear", "rain", "snow"],
+      "time_of_day": true,
+      "lighting": "dynamic",
+      "particles": ["snow", "rain", "sparkles"],
+      "skybox": "customizable"
+    }
+  },
+  
+  "execution_engine": {
+    "description": "Block code interpreter and runtime",
+    
+    "interpreter": {
+      "type": "event_driven",
+      "threading": "cooperative_multitasking",
+      "features": {
+        "concurrent_scripts": true,
+        "event_handlers": true,
+        "async_operations": true
+      }
+    },
+    
+    "runtime": {
+      "execution_modes": ["play", "step", "pause", "stop"],
+      "performance": {
+        "frame_rate_target": 60,
+        "optimization": "chunk_culling",
+        "lazy_loading": true
+      }
+    },
+    
+    "script_compilation": {
+      "process": "blocks_to_javascript",
+      "validation": "real_time",
+      "error_handling": {
+        "syntax_errors": "visual_feedback",
+        "runtime_errors": "console_log"
+      }
+    }
+  },
+  
+  "ui_components": {
+    "block_palette": {
+      "layout": "vertical_tabs",
+      "scrollable": true,
+      "search": true,
+      "categories": "color_coded"
+    },
+    
+    "workspace": {
+      "type": "infinite_canvas",
+      "features": {
+        "zoom": true,
+        "pan": true,
+        "grid": "optional",
+        "auto_arrange": true
+      }
+    },
+    
+    "viewport_ui": {
+      "elements": [
+        {
+          "id": "player_name_tag",
+          "position": "above_player",
+          "style": "floating"
+        },
+        {
+          "id": "health_bar",
+          "position": "top_left",
+          "hideable": true
+        },
+        {
+          "id": "hotbar",
+          "position": "bottom_center",
+          "slots": 8
+        },
+        {
+          "id": "crosshair",
+          "position": "center",
+          "style": "minimal"
+        },
+        {
+          "id": "coordinates_display",
+          "position": "top_right",
+          "toggle": "F3"
+        }
+      ]
+    },
+    
+    "dialogs": {
+      "types": ["text_dialog", "choice_dialog", "input_dialog"],
+      "style": "speech_bubble",
+      "animations": true
+    }
+  },
+  
+  "file_system": {
+    "project_structure": {
+      "format": "JSON",
+      "contains": ["blocks", "world_data", "assets", "metadata"]
+    },
+    
+    "save_load": {
+      "auto_save": true,
+      "save_interval": 30,
+      "cloud_sync": "optional",
+      "export_formats": ["json", "javascript"]
+    },
+    
+    "assets": {
+      "supported_types": ["images", "audio", "models"],
+      "upload_methods": ["file_picker", "drag_drop", "qr_code"]
+    }
+  },
+  
+  "keyboard_controls": {
+    "F1": "Toggle Guide",
+    "F3": "Toggle Coordinates",
+    "Esc": "Return to Editor",
+    "WASD": "Move",
+    "Shift": "Descend when flying",
+    "Space": "Jump/Ascend when flying",
+    "V": "Toggle Perspective",
+    "Mouse": "Look/Pick block"
+  },
+  
+  "technical_stack": {
+    "frontend": {
+      "framework": "React or Vue.js",
+      "block_editor": "Custom or Blockly-based",
+      "3d_engine": "Three.js",
+      "ui_library": "Tailwind CSS or Material-UI"
+    },
+    
+    "backend": {
+      "server": "Node.js with Express",
+      "database": "MongoDB or PostgreSQL",
+      "auth": "JWT or OAuth",
+      "storage": "AWS S3 or similar for assets"
+    },
+    
+    "features_to_implement": [
+      "Real-time multiplayer (WebSockets)",
+      "User authentication and profiles",
+      "Project sharing and publishing",
+      "Community gallery",
+      "Mobile responsive design",
+      "QR code sharing",
+      "Script export functionality",
+      "Tutorial system"
+    ]
+  },
+  
+  "implementation_priorities": {
+    "phase_1_core": [
+      "Block editor UI with drag-and-drop",
+      "Basic block categories (Events, Control, Operators)",
+      "Three.js voxel renderer",
+      "Camera controls and player movement",
+      "Cube placement and breaking system"
+    ],
+    
+    "phase_2_expansion": [
+      "All block categories implemented",
+      "World templates and presets",
+      "Sound system",
+      "Inventory and hotbar UI",
+      "Save/load functionality"
+    ],
+    
+    "phase_3_polish": [
+      "Procedures and custom functions",
+      "Advanced building tools (copy, rotate)",
+      "Weather and particle effects",
+      "Model placement system",
+      "Mobile support"
+    ],
+    
+    "phase_4_social": [
+      "User accounts",
+      "Project sharing",
+      "Multiplayer support",
+      "Community features",
+      "Analytics dashboard"
+    ]
+  }
+} "position"
+        },
+        {
+          "id": "move_player_to",
+          "type": "stack",
+          "text": "move player to position X [X] Y [Y] Z [Z]",
+          "inputs": {
+            "X": { "type": "number", "default": 0 },
+            "Y": { "type": "number", "default": 0 },
+            "Z": { "type": "number", "default": 0 }
+          }
+        },
+        {
+          "id": "allow_flying",
+          "type": "stack",
+          "text": "[ALLOW] flying",
+          "inputs": {
+            "ALLOW": { "type": "dropdown", "options": ["allow", "disallow"] }
+          }
+        },
+        {
+          "id": "allow_out_of_edge",
+          "type": "stack",
+          "text": "[ALLOW] out of edge",
+          "inputs": {
+            "ALLOW": { "type": "dropdown", "options": ["allow", "disallow"] }
+          }
+        },
+        {
+          "id": "use_player",
+          "type": "stack",
+          "text": "use player [TOOL] [ACTION]",
+          "inputs": {
+            "TOOL": { "type": "dropdown", "options": ["melee", "ranged", "tool"] },
+            "ACTION": { "type": "dropdown", "options": ["attack", "use", "break"] }
+          }
+        },
+        {
+          "id": "player_sits",
+          "type": "stack",
+          "text": "player sits down"
+        },
+        {
+          "id": "player_eats",
+          "type": "stack",
+          "text": "player eats"
+        },
+        {
+          "id": "show_dialog",
+          "type": "stack",
+          "text": "show dialog box [TEXT]",
+          "inputs": {
+            "TEXT": { "type": "text" }
+          }
+        },
+        {
+          "id": "player_says",
+          "type": "stack",
+          "text": "player [NAME] said [TEXT]",
+          "inputs": {
+            "NAME": { "type": "text" },
+            "TEXT": { "type": "text" }
+          }
+        },
+        {
+          "id": "ask_and_wait",
+          "type": "stack",
+          "text": "ask [QUESTION] and wait",
+          "inputs": {
+            "QUESTION": { "type": "text" }
+          }
+        },
+        {
+          "id": "answer",
+          "type": "reporter",
+          "text": "answer",
+          "returns": "string"
+        },
+        {
+          "id": "ask_choice",
+          "type": "stack",
+          "text": "[NAME] asks [QUESTION] and choose [OPTION1] [OPTION2]",
+          "inputs": {
+            "NAME": { "type": "text" },
+            "QUESTION": { "type": "text" },
+            "OPTION1": { "type": "text" },
+            "OPTION2": { "type": "text" }
+          }
+        },
+        {
+          "id": "choice",
+          "type": "reporter",
+          "text": "choice",
+          "returns": "number"
+        }
+      ]
+    },
+    
+    {
+      "id": "inventory",
+      "name": "Inventory",
+      "color": "#FF9999",
+      "icon": "backpack",
+      "blocks": [
+        {
+          "id": "hide_hotbar",
+          "type": "stack",
+          "text": "hide [ELEMENT]",
+          "inputs": {
+            "ELEMENT": { "type": "dropdown", "options": ["hotbar", "inventory", "healthbar"] }
+          }
+        },
+        {
+          "id": "show_inventory",
+          "type": "stack",
+          "text": "show inventory"
+        },
+        {
+          "id": "clear_hotbar",
+          "type": "stack",
+          "text": "clear hotbar"
+        },
+        {
+          "id": "toggle_backpack",
+          "type": "stack",
+          "text": "toggle backpack visibility"
+        },
+        {
+          "id": "cube_types",
+          "type": "reporter",
+          "text": "[CUBE_TYPE] cube",
+          "inputs": {
+            "CUBE_TYPE": { "type": "dropdown", "options": ["nature", "building", "solid", "decoration", "number/symbol", "letter", "item"] }
+          },
+          "returns": "cube_id"
+        },
+        {
+          "id": "put_cube_in_hotbar",
+          "type": "stack",
+          "text": "put [COUNT] [CUBE] to hotbar position [POS]",
+          "inputs": {
+            "COUNT": { "type": "number", "default": 1 },
+            "CUBE": { "type": "cube_selector" },
+            "POS": { "type": "number", "default": 0, "min": 0, "max": 7 }
+          }
+        },
+        {
+          "id": "add_cube_to_hotbar",
+          "type": "stack",
+          "text": "add [COUNT] [CUBE] to hotbar position [POS]",
+          "inputs": {
+            "COUNT": { "type": "number", "default": 1 },
+            "CUBE": { "type": "cube_selector" },
+            "POS": { "type": "number", "default": 0, "min": 0, "max": 7 }
+          }
+        },
+        {
+          "id": "start_jetpack",
+          "type": "stack",
+          "text": "start jetpack"
+        },
+        {
+          "id": "stop_jetpack",
+          "type": "stack",
+          "text": "stop jetpack"
+        }
+      ]
+    },
+    
+    {
+      "id": "building",
+      "name": "Building",
+      "color": "#5FCF80",
+      "icon": "wrench",
+      "blocks": [
+        {
+          "id": "space_formed_by",
+          "type": "reporter",
+          "text": "space formed by position X [X1] Y [Y1] Z [Z1] and position X [X2] Y [Y2] Z [Z2]",
+          "inputs": {
+            "X1": { "type": "number" },
+            "Y1": { "type": "number" },
+            "Z1": { "type": "number" },
+            "X2": { "type": "number" },
+            "Y2": { "type": "number" },
+            "Z2": { "type": "number" }
+          },
+          "returns": "space"
+        },
+        {
+          "id": "copy_rotate_cubes",
+          "type": "stack",
+          "text": "copy and rotate [ANGLE]° [DIRECTION] all cubes in [SPACE]",
+          "inputs": {
+            "ANGLE": { "type": "number", "default": 90 },
+            "DIRECTION": { "type": "dropdown", "options": ["clockwise", "anticlockwise"] },
+            "SPACE": { "type": "space" }
+          }
+        },
+        {
+          "id": "set_cube_at",
+          "type": "stack",
+          "text": "set cube at [POSITION] as [CUBE]",
+          "inputs": {
+            "POSITION": { "type": "position" },
+            "CUBE": { "type": "cube_selector" }
+          }
+        },
+        {
+          "id": "put_cube",
+          "type": "stack",
+          "text": "put cube [CUBE] at pointer's position",
+          "inputs": {
+            "CUBE": { "type": "cube_selector" }
+          }
+        },
+        {
+          "id": "break_cube",
+          "type": "stack",
+          "text": "break [POSITION] cube",
+          "inputs": {
+            "POSITION": { "type": "dropdown", "options": ["pointer's position", "player's position", "custom"] }
+          }
+        },
+        {
+          "id": "place_model",
+          "type": "stack",
+          "text": "place model [MODEL] at position X [X] Y [Y] Z [Z], scale [SCALE] with [COLLISIONS] collisions with [ANIMATION] animation [SPEED] sec(s) per frame",
+          "inputs": {
+            "MODEL": { "type": "dropdown", "options": ["tree", "house", "car", "custom"] },
+            "X": { "type": "number" },
+            "Y": { "type": "number" },
+            "Z": { "type": "number" },
+            "SCALE": { "type": "number", "default": 1 },
+            "COLLISIONS": { "type": "dropdown", "options": ["with", "without"] },
+            "ANIMATION": { "type": "number", "default": 1 },
+            "SPEED": { "type": "number", "default": 1 }
+          }
+        },
+        {
+          "id": "set_drone_position",
+          "type": "stack",
+          "text": "set drone's position to [POSITION]",
+          "inputs": {
+            "POSITION": { "type": "position" }
+          }
+        },
+        {
+          "id": "move_drone",
+          "type": "stack",
+          "text": "move drone [DIRECTION] by [UNITS] units",
+          "inputs": {
+            "DIRECTION": { "type": "dropdown", "options": ["forward", "backward", "left", "right", "up", "down"] },
+            "UNITS": { "type": "number", "default": 1 }
+          }
+        },
+        {
+          "id": "rotate_drone",
+          "type": "stack",
+          "text": "rotate drone around [AXIS] by [DEGREES] degrees",
+          "inputs": {
+            "AXIS": { "type": "dropdown", "options": ["X", "Y", "Z"] },
+            "DEGREES": { "type": "number", "default": 90 }
+          }
+        }
+      ]
+    },
+    
+    {
+      "id": "sound",
+      "name": "Sound",
+      "color": "#A37FD8",
+      "icon": "speaker",
+      "blocks": [
+        {
+          "id": "play_sound",
+          "type": "stack",
+          "text": "playSound [SOUND]",
+          "inputs": {
+            "SOUND": { "type": "dropdown", "options": ["Break", "Place", "BGM", "custom"] }
+          }
+        },
+        {
+          "id": "play_sound_wait",
+          "type": "stack",
+          "text": "play sound [SOUND] and wait",
+          "inputs": {
+            "SOUND": { "type": "dropdown", "options": ["Break", "Place", "BGM", "custom"] }
+          }
+        },
+        {
+          "id": "play_note",
+          "type": "stack",
+          "text": "play note [NOTE] for [BEATS] beats",
+          "inputs": {
+            "NOTE": { "type": "dropdown", "options": ["A0", "A1", "B0", "C1", "D1", "E1", "F1", "G1"] },
+            "BEATS": { "type": "number", "default": 1 }
+          }
+        },
+        {
+          "id": "wait_beats",
+          "type": "stack",
+          "text": "wait [BEATS] beats",
+          "inputs": {
+            "BEATS": { "type": "number", "default": 1 }
+          }
+        },
+        {
+          "id": "stop_sounds",
+          "type": "stack",
+          "text": "stop all sounds"
+        },
+        {
+          "id": "say",
+          "type": "stack",
+          "text": "say [TEXT]",
+          "inputs": {
+            "TEXT": { "type": "text" }
+          }
+        },
+        {
+          "id": "say_wait",
+          "type": "stack",
+          "text": "say [TEXT] and wait",
+          "inputs": {
+            "TEXT": { "type": "text" }
+          }
+        }
+      ]
+    },
+    
+    {
+      "id": "sensing",
+      "name": "Sensing",
+      "color": "#66CC99",
+      "icon": "radar",
+      "blocks": [
+        {
+          "id": "pointer_position",
+          "type": "reporter",
+          "text": "pointer's position",
+          "returns": "position"
+        },
+        {
+          "id": "pointer_adjacent_position",
+          "type": "reporter",
+          "text": "pointer's adjacent position",
+          "returns": "position"
+        },
+        {
+          "id": "selected_material",
+          "type": "reporter",
+          "text": "selected material in hotbar",
+          "returns": "cube_id"
+        },
+        {
+          "id": "position_xyz",
+          "type": "reporter",
+          "text": "position X [X] Y [Y] Z [Z]",
+          "inputs": {
+            "X": { "type": "number", "default": 0 },
+            "Y": { "type": "number", "default": 0 },
+            "Z": { "type": "number", "default": 0 }
+          },
+          "returns": "position"
+        },
+        {
+          "id": "position_component",
+          "type": "reporter",
+          "text": "[POSITION]'s [COMPONENT] value",
+          "inputs": {
+            "POSITION": { "type": "position" },
+            "COMPONENT": { "type": "dropdown", "options": ["X", "Y", "Z"] }
+          },
+          "returns": "number"
+        },
+        {
+          "id": "cube_material",
+          "type": "reporter",
+          "text": "cube material of [POSITION]",
+          "inputs": {
+            "POSITION": { "type": "position" }
+          },
+          "returns": "cube_id"
+        },
+        {
+          "id": "cube_material_is",
+          "type": "boolean",
+          "text": "cube material of [POSITION] is [CUBE]",
+          "inputs": {
+            "POSITION": { "type": "position" },
+            "CUBE": { "type": "cube_selector" }
+          },
+          "returns": "boolean"
+        },
+        {
+          "id": "key_pressed",
+          "type": "boolean",
+          "text": "pressed key [KEY]",
+          "inputs": {
+            "KEY": { "type": "dropdown", "options": ["a-z", "0-9", "space", "arrows"] }
+          },
+          "returns": "boolean"
+        },
+        {
+          "id": "mouse_pressed",
+          "type": "boolean",
+          "text": "[BUTTON] mouse pressed",
+          "inputs": {
+            "BUTTON": { "type": "dropdown", "options": ["left", "right", "middle"] }
+          },
+          "returns": "boolean"
+        },
+        {
+          "id": "screen_clicked",
+          "type": "boolean",
+          "text": "screen clicked",
+          "returns": "boolean"
+        },
+        {
+          "id": "cube_reporter",
+          "type": "reporter",
+          "text": "cube",
+          "returns": "cube_selector"
+        },
+        {
+          "id": "drone",
+          "type": "reporter",
+          "text": "drone",
+          "returns": "entity"
+        },
+        {
+          "id": "drone_rotation",
+          "type": "reporter",
+          "text": "drone's rotation at [AXIS]",
+          "inputs": {
+            "AXIS": { "type": "dropdown", "options": ["X", "Y", "Z"] }
+          },
+          "returns": "number"
+        }
+      ]
+    },
+    
+    {
+      "id": "operators",
+      "name": "Operators",
+      "color": "#FFB366",
+      "icon": "calculator",
+      "blocks": [
+        {
+          "id": "format_number",
+          "type": "reporter",
+          "text": "format [NUMBER]",
+          "inputs": {
+            "NUMBER": { "type": "number" }
+          },
+          "returns": "string"
+        },
+        {
+          "id": "add",
+          "type": "reporter",
+          "text": "[NUM1] + [NUM2]",
+          "inputs": {
+            "NUM1": { "type": "number" },
+            "NUM2": { "type": "number" }
+          },
+          "returns": "number"
+        },
+        {
+          "id": "subtract",
+          "type": "reporter",
+          "text": "[NUM1] - [NUM2]",
+          "inputs": {
+            "NUM1": { "type": "number" },
+            "NUM2": { "type": "number" }
+          },
+          "returns": "number"
+        },
+        {
+          "id": "multiply",
+          "type": "reporter",
+          "text": "[NUM1] * [NUM2]",
+          "inputs": {
+            "NUM1": { "type": "number" },
+            "NUM2": { "type": "number" }
+          },
+          "returns": "number"
+        },
+        {
+          "id": "divide",
+          "type": "reporter",
+          "text": "[NUM1] / [NUM2]",
+          "inputs": {
+            "NUM1": { "type": "number" },
+            "NUM2": { "type": "number" }
+          },
+          "returns": "number"
+        },
+        {
+          "id": "random",
+          "type": "reporter",
+          "text": "get a random number between [MIN] and [MAX]",
+          "inputs": {
+            "MIN": { "type": "number", "default": 0 },
+            "MAX": { "type": "number", "default": 10 }
+          },
+          "returns": "number"
+        },
+        {
+          "id": "is_even",
+          "type": "boolean",
+          "text": "[NUMBER] is even",
+          "inputs": {
+            "NUMBER": { "type": "number" }
+          },
+          "returns": "boolean"
+        },
+        {
+          "id": "and",
+          "type": "boolean",
+          "text": "[BOOL1] and [BOOL2]",
+          "inputs": {
+            "BOOL1": { "type": "boolean" },
+            "BOOL2": { "type": "boolean" }
+          },
+          "returns":
